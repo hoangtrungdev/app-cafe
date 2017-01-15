@@ -28,7 +28,7 @@ angular.module('app', [
         'ngDragDrop'
     ])
     .constant('FURL','https://trung-app.firebaseio.com/')
-    .constant('socket_url','http://localhost:4560/');
+    .constant('socket_url','http://localhost:8383/');
 angular.module('app').directive('stringToTimestamp', function() {
     return {
         require: 'ngModel',
