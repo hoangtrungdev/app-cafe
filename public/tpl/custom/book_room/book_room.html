@@ -1,0 +1,312 @@
+<div id="map"  data-ng-controller="BookRoomCtrl">
+<div class=" wrapper-md page-title-out" >
+    <span class="page-title">Đặt Phòng</span>
+    <div class="pull-right" >
+            <input type="hidden" id="date_now" ng-model="date"/>
+            <a ui-sref="app.map" class="btn-mod-full blue" >
+                <img src="img/icon/btn-x.png" />
+                Hủy Bỏ
+            </a>
+                        <span  data-ng-show="check_status">
+                        <a data-ng-show="type_page=='edit'"  class="btn-mod-full"  data-ng-click="book_room('edit_check_out')"   >
+                            <img src="img/icon/btn-mon.png" />
+                            Thanh Toán
+                        </a>
+                        <a data-ng-show="type_page=='edit'"  class="btn-mod-full"  data-ng-click="book_room(type_page)" >
+                            <img src="img/icon/btn-key.png" />
+                            Cập Nhật
+                        </a>
+
+                        <a data-ng-show="type_page=='add'"  class="btn-mod-full"  data-ng-click="book_room(type_page)" >
+                            <img src="img/icon/btn-key.png" />
+                            Xác Nhận
+                        </a>
+                        </span>
+    </div>
+</div>
+<div class="page-in" >
+<div class="pad-left" >
+<form name="bookForm" class="form-validation form-horizontal" >
+<tabset  class="tab-container">
+<tab ng-repeat="room in array_room_detail" heading="Phòng {{room.name}}">
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">Thông Tin Phòng</div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="form-group col-lg-3" >
+                <label class="col-lg-4 col-xs-2 control-label label-mod">Phòng </label>
+                <div class="col-lg-8 col-xs-10">
+                    <input type="text" class="form-control" ng-value="room.name" readonly>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-4 col-xs-2 control-label label-mod">Loại </label>
+                <div class="col-lg-8 col-xs-10">
+                    <input type="text" class="form-control" ng-value="room.room_type.name" readonly>
+                </div>
+            </div>
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3 col-xs-2 control-label label-mod">Thuê Theo</label>
+                <div class="col-lg-9 col-xs-10">
+                    <select name="type" class="form-control m-b" id="type{{room._id}}">
+                        <option value="hour" ng-selected="room.type_book == 'hour'">Thuê Theo Giờ</option>
+                        <option value="day" ng-selected="room.type_book == 'day'">Thuê Theo Ngày</option>
+                        <option value="night" ng-selected="room.type_book == 'night'">Qua Đêm</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-3">
+                <label class="col-lg-4 col-xs-2 control-label label-mod">Ngày Vào </label>
+                <div class="col-lg-8 col-xs-10">
+                    <input data-ng-show="type_page=='add'" type="text" class="form-control" ng-value="date | date:'dd-MM-yyyy'" readonly>
+                    <input data-ng-show="type_page=='edit'" type="text" class="form-control" ng-value="room.time | date:'dd-MM-yyyy'" readonly>
+                </div>
+            </div>
+            <div class="form-group col-lg-3">
+                <label class="col-lg-4 col-xs-2 control-label label-mod">Giờ Vào </label>
+                <div class="col-lg-8 col-xs-10">
+                    <input data-ng-show="type_page=='add'" type="text" class="form-control" ng-value="date | date:' h:mm:ss a'" readonly>
+                    <input data-ng-show="type_page=='edit'" type="text" class="form-control" ng-value="room.time | date:' h:mm:ss a'" readonly>
+                </div>
+            </div>
+            <div class="form-group col-lg-6">
+                <label class="col-lg-3 col-xs-2 control-label label-mod">Đối Tác</label>
+                <div class="col-lg-9 col-xs-10">
+                    <ui-select ng-model="room.supplier" on-select="supplier_choose(room)" theme="bootstrap" >
+                        <ui-select-match  allow-clear="true"  placeholder="Chọn Đối Tác ...">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="supplier in suppliers | propsFilter: {name: $select.search}">
+                            <div ng-bind-html="supplier.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Dịch Vụ Thêm
+    </div>
+    <span class="add-mod-right">
+        <a data-ng-click="add_service(room)"><span class="icon icon-add-blue"></span> </a>
+    </span>
+    <div class="panel-body">
+        <div  ng-hide="room.services.length != 0 ">Không có dịch vụ thêm</div>
+        <table class="table m-b-none table-mod"  ng-hide="room.services.length == 0">
+            <thead>
+            <tr>
+                <th style="width:5%">STT </th>
+                <th style="width:30%">Tên Dịch Vụ</th>
+                <th style="width:15%">Đơn Giá</th>
+                <th style="width:15%">ĐVT</th>
+                <th style="width:10%">Số Lượng</th>
+                <th style="width:10%">Thành Tiền</th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="service in room.services" >
+                <td>{{ $index + 1 }}</td>
+                <td>
+                    <ui-select on-select="service_choose(service,room ,service.s_id)" ng-model="service" theme="bootstrap" >
+                        <ui-select-match placeholder="Tên Dịch Vụ">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="service_a in services | propsFilter: {name: $select.search}" >
+                            <span ng-init="service_a.s_id = service.s_id" ng-bind-html="service_a.name | highlight: $select.search"> </span> - {{service_a.price}}
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>{{service.price| number:0}}</td>
+                <td>{{service.dvt }}</td>
+                <td>
+                    <input ng-model="service.qty"  type="number" min="0" step="1" id="qty{{service_key}}" class="mod-input" ng-change="edit_service(service,room)" />
+                </td>
+                <td>
+                    {{service.price*service.qty | number:0}}
+                                                <span class="pull-right">
+                                                    <a><i ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                                          ng-bootbox-confirm-action="del_service(room,service.s_id)"
+                                                          class="fa fa-times fa-fw"></i>
+                                                    </a>
+                                                </span>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Giảm Giá / Phụ Thu
+    </div>
+    <span class="add-mod-right">
+       <a data-ng-click="add_custom(room)"><span class="icon icon-add-blue"></span> </a>
+    </span>
+    <div class="panel-body">
+        <div  ng-hide="room.customs.length != 0 ">Không có giảm giá hoặc phụ thu</div>
+        <table class="table m-b-none table-mod"  ng-hide="room.customs.length == 0 ">
+            <thead>
+            <tr>
+                <th style="width: 10%">STT </th>
+                <th>Tên Dịch Vụ</th>
+                <th>Giá Trị</th>
+                <th></th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="custom in room.customs" >
+                <td>{{ $index + 1 }}</td>
+                <td>
+                    <input ng-model="custom.custom_text" value="{{custom.custom_text}}" type="text"  id="custom_text{{custom_key}}" class="mod-input" ng-change="edit_custom(custom,room)" />
+                </td>
+                <td>
+                    <input number-mask="" ng-model="custom.custom_value" value="{{custom.custom_value}}" type="text" id="custom_value{{custom_key}}" class="mod-input" ng-change="edit_custom(custom,room)" />
+                </td>
+                <td>
+                    <span class="pull-right">
+                         <a><i ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                               ng-bootbox-confirm-action="del_custom(room, custom._id)"
+                               class="fa fa-times fa-fw"></i>
+                         </a>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">Thông Tin Khách Hàng </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="col-lg-2 col-xs-2 control-label label-mod">Khách Hàng </label>
+                <div class="col-lg-10 col-xs-10">
+                    <ui-select data-ng-disabled="customer_add" ng-model="room.customer" on-select="customer_choose(room)" theme="bootstrap" >
+                        <ui-select-match placeholder="Nhập Tên Khách Hàng Hoặc CMND...">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="customer in customers | propsFilter: {name: $select.search, cmnd: $select.search}">
+                            <div ng-bind-html="customer.name | highlight: $select.search"></div>
+                            <small>
+                                email: {{customer.email}} |
+                                CMND : <span ng-bind-html="''+customer.cmnd | highlight: $select.search"></span>
+                            </small>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </div>
+            <div class="form-group col-lg-6" >
+                <div class="col-xs-offset-2 col-xs-10 col-lg-12 col-lg-offset-0">
+                    <a data-ng-show="!customer_add" class="btn-mod-full" data-ng-click="add_customer(room)" >
+                        Thêm Khách Hàng Mới
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-6" >
+                <label class="col-lg-2 col-xs-2 control-label label-mod">CMND </label>
+                <div class="col-lg-10 col-xs-10">
+                    <input ng-value="room.customer.cmnd" type="text" class="form-control" data-ng-disabled="!customer_add" >
+                </div>
+            </div>
+            <div class="form-group col-lg-6">
+                <label class="col-lg-2 col-xs-2 control-label label-mod">Email </label>
+                <div class="col-lg-10 col-xs-10">
+                    <input ng-value="room.customer.email" type="email" class="form-control" data-ng-disabled="!customer_add">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="col-lg-2 col-xs-2 control-label label-mod">Họ Tên </label>
+                <div class="col-lg-10 col-xs-10">
+                    <input ng-value="room.customer.name" type="text" class="form-control" data-ng-disabled="!customer_add">
+                </div>
+            </div>
+            <div class="form-group col-lg-6">
+                <label class="col-lg-2 col-xs-2 control-label label-mod">Điện Thoại </label>
+                <div class="col-lg-10 col-xs-10">
+                    <input ng-value="room.customer.phone" type="text" class="form-control" data-ng-disabled="!customer_add">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label class="col-lg-2 col-xs-2 control-label label-mod">Địa Chỉ</label>
+                <div class="col-lg-10 col-xs-10">
+                    <input ng-value="room.customer.address" type="text" class="form-control" data-ng-disabled="!customer_add">
+                </div>
+            </div>
+            <div class="form-group col-lg-6">
+                <label class="col-lg-2 col-xs-2 control-label label-mod">Quốc Tịch </label>
+                <div class="col-lg-10 col-xs-10">
+                    <input ng-value="room.customer.country" type="text" class="form-control" data-ng-disabled="!customer_add">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Khách Hàng Đi Cùng
+    </div>
+    <span class="add-mod-right">
+       <a data-ng-click="add_together(room)"><span class="icon icon-add-blue"></span> </a>
+    </span>
+    <div class="panel-body">
+        <div  ng-hide="room.togethers.length != 0">Không có khách hàng đi cùng</div>
+        <table class="table m-b-none table-mod"  ng-hide="room.togethers.length == 0 ">
+            <thead>
+            <tr>
+                <th style="width: 10%">STT </th>
+                <th>Họ Và Tên</th>
+                <th>CMND</th>
+                <th></th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="together in room.togethers" >
+                <td>{{ $index + 1 }}</td>
+                <td>
+                    <input ng-model="together.together_text" value="{{together.together_text}}" type="text"  id="together_text{{together_key}}" class="mod-input" ng-change="edit_together(together,room)" />
+                </td>
+                <td>
+                    <input ng-model="together.together_value" value="{{together.together_value}}" type="text" id="together_value{{together_key}}" class="mod-input" ng-change="edit_together(together,room)" />
+                </td>
+                <td>
+                    <span class="pull-right">
+                         <a><i ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                               ng-bootbox-confirm-action="del_together(room, together._id)"
+                               class="fa fa-times fa-fw"></i>
+                         </a>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+
+</tab>
+</tabset>
+
+</form>
+
+
+</div>
+</div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".page-in").height($(window).height()-100);
+        $(".page-in").mCustomScrollbar();
+    })
+</script>
+

@@ -1,0 +1,29 @@
+<div>
+	<div class="button-wrapper">
+		<button data-ng-key="1">1</button>
+		<button data-ng-key="2">2</button>
+		<button data-ng-key="3">3</button>
+		<button data-ng-key="4">4</button>
+		<button data-ng-key="5">5</button>
+		<button data-ng-key="6">6</button>
+		<button data-ng-key="7">7</button>
+		<button data-ng-key="8">8</button>
+		<button data-ng-key="9">9</button>
+
+
+		<button data-ng-key="DELETE" class="smaller" >Xóa</button>
+		<button data-ng-key="0">0</button>
+        <button class="smaller"  data-ng-key="[CLOSE]">OK</button>
+
+    </div>
+    <div class="num-div">
+        {{paid[focus_now] | number : 0}}
+    </div>
+	<div class="drag-indicator">
+		<span></span>
+		<span></span>
+		<span></span>
+	</div>
+
+	<button class="close" data-ng-key="[CLOSE]"></button>
+</div>

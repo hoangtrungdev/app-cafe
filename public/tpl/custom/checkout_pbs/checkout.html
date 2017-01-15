@@ -1,0 +1,529 @@
+<div  data-ng-controller="CheckoutPbsCtrl" >
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div id="mobile-search" data-ng-click="mobile_search = !mobile_search " data-ng-hide="mobile_menu">
+                <img src="img/icon/mobile-search.png" >
+            </div>
+            <div data-ng-keypad="numeric" data-auto-close="true" class="numpad animated fadeInRightBig">
+                <div ng-include="" src="'tpl/keypad/alpha.html'"></div>
+            </div>
+            <div id="mobile-search-content" data-slide-toggle="mobile_search" data-slide-toggle-duration="300">
+                <div id="mobile-search-in">
+                    <div id="mobile-search-title">TÌM KIẾM NÂNG CAO</div>
+                    {{opened1}}
+                    <div class="mobile-search-div" style="position: relative">
+                        <a class="mobile-search-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" >
+                            {{start | date:'dd-MM-yyyy'}} <span data-ng-if="!start">Từ Ngày</span>
+                        </a>
+                    </div>
+                    <div class="mobile-search-div" style="  position: relative">
+                        <a class="mobile-search-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" >
+                            {{end | date:'dd-MM-yyyy'}} <span data-ng-if="!end">Đến Ngày</span>
+                        </a>
+                    </div>
+                    <div class="m-s-line"></div>
+                    <div class="mobile-search-div">
+                        <a class="mobile-search-input" data-ng-model="filter_code_room" data-ng-keypad-input="numeric" tabindex="1" >
+                            {{filter_code_room}} <span data-ng-if="!filter_code_room">Mã Hóa Đơn</span>
+                        </a>
+                    </div>
+                    <div class="mobile-search-div">
+                        <select class="mobile-search-input-select"  ng-model="filter_nv" style="margin: 0px">
+                            <option value="" >Chọn Nhân Viên</option>
+                            <option ng-repeat="user in users" value="{{user.username}}">{{user.name}}</option>
+                        </select>
+                    </div>
+
+
+                    <div style="margin-top: 18px;border-top: 1px solid #CCC; padding:  10px ; text-align: right">
+                        <a class="btn mobile-search-btn btn-mod-sm" data-ng-click="mobile_search = false">
+                            <img src="img/icon/mobile-s.png" />
+                            Xác Nhận
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="m-bc">
+                <div class="m-bc-title">HÓA ĐƠN BÁN SỈ <span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+                <table class="table-mod table m-b-none table-hover " >
+                    <thead>
+                    <tr>
+                        <th>Mã Phiếu</th>
+                        <th style="min-width: 95px ; text-align: center">Tổng Cộng </th>
+                    </tr>
+                    </thead>
+                    <tbody  ng-repeat="pbs in (pbss | datefilter:start:end  | orderBy:'-date'
+                                      | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                                      | filter: rulefilter
+                                      | startFrom:(currentPage_mobile-1)*15 | limitTo : 15  )">
+                    <tr ng-class="edit_pbs_id == pbs._id ?'tr-now':''"  class="color">
+                        <td  data-ng-click="edit_pbs(pbs._id)">{{ pbs.code}}</td>
+                        <td  data-ng-click="edit_pbs(pbs._id)" style="text-align: center ; color: #0d8dc9">{{ pbs.total | number : 0 }}</td>
+                    </tr>
+                    <tr class="tr-edit" data-ng-if="edit_pbs_id == pbs._id">
+                        <td colspan="2">
+                            <div style="font-size: 13px ; color:#0d8dc9 ; padding: 5px 0px ; font-weight: bold">Thông tin chi tiết hóa đơn</div>
+                            <table class="check-table">
+                                <tr>
+                                    <td class="check-tab-title"> Mã Hóa Đơn</td>
+                                    <td>{{pbs.code}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Mã Khách Hàng</td>
+                                    <td>{{ pbs.customer.code }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tên Khách Hàng</td>
+                                    <td>{{ pbs.customer.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tiền Hàng</td>
+                                    <td>{{ pbs.total | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Mã Giảm Giá</td>
+                                    <td>{{pbs.coupon?pbs.coupon :"Không Sử Dụng "}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Giảm Giá</td>
+                                    <td>{{ pbs.reduce | number : 0 }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="check-tab-title">Khách Trả</td>
+                                    <td>{{ pbs.paid | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tiền Thừa</td>
+                                    <td>{{ pbs.paid - pbs.total + 1*pbs.reduce | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Nhân Viên</td>
+                                    <td>{{ pbs.user.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Ngày Tạo</td>
+                                    <td>{{ pbs.date | date:'dd-MM-yyyy'}}</td>
+                                </tr>
+                            </table>
+                            <div style="color: #ec7424 ; font-size: 13px; font-weight: bold">
+                                TỔNG CỘNG : &nbsp&nbsp&nbsp&nbsp {{ pbs.total - pbs.reduce  | number : 0 }}
+                                <span class="pull-right" style="font-size: 12px ; color: #454545; font-weight: normal"> Đơn vị tính : VNĐ</span>
+                            </div>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < (pbss | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < (pbss | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <div class="panel panel-default" style="margin-bottom: 6px" >
+            <div class="panel-heading-mod">
+                <div class="pull-left span-heading-mod">Báo Cáo Doanh Số Bán Sỉ</div>
+                <div class="pull-right span-heading-mod">Đơn Vị Tính : VNĐ</div>
+                <div class="clr"></div>
+            </div>
+            <div class="c-bc">
+                <div class="c-bc-in">
+                    <img src="img/icon/c-1.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-f07025">
+                            {{(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total' | number : 0 )}}
+                        </p>
+                        <p  class="c-bc-sm">DOANH SỐ</p>
+                    </div>
+                </div>
+                <div class="c-bc-in">
+                    <img src="img/icon/c-2.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-8cc152">
+                            {{ (pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter ).length | number : 0}}
+                        </p>
+                        <p  class="c-bc-sm"> HÓA ĐƠN</p>
+                    </div>
+                </div>
+                <div class="c-bc-in">
+                    <img src="img/icon/c-3.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-967adc">
+                            {{ (pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_mua')
+                            + (pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_chiphi' ) | number :0}}
+                        </p>
+                        <p  class="c-bc-sm">TỔNG VỐN</p>
+                    </div>
+                </div>
+                <div class="c-bc-in">
+                    <img src="img/icon/c-4.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-ec87c0">
+                            {{(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'reduce' | number : 0 )}}
+                        </p>
+                        <p  class="c-bc-sm">GIẢM GIÁ</p>
+                    </div>
+                </div>
+                <div class="c-bc-in">
+                    <img src="img/icon/c-5.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-ed5565">
+                            {{(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total')
+                            -(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_mua')
+                            -(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_chiphi' )
+                            -(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'reduce'  )
+                            | number :0}}</p>
+                        <p  class="c-bc-sm">LỢI NHUẬN</p>
+                    </div>
+                </div>
+                <div class="clr"></div>
+            </div>
+        </div>
+        <div class="page-in" >
+            <div class="pad-left" >
+                <div class="panel panel-default panel-min-check" style="margin-top: 10px" >
+                    <div class="panel-heading-mod">
+                        <div class="pull-left span-heading-mod">Phiếu Bán Sỉ</div>
+
+                        <a class="pull-right btn btn-ser-search" data-ng-click="search_show=!search_show">
+                            <img src="img/icon/ser-search.png">
+                            <img src="img/icon/down.png">
+                        </a>
+                        <a class="pull-right btn btn-ser-search" data-ng-click="exportData()">
+                            <img src="img/icon/icon-file.png">
+                            Xuất Excel
+                        </a>
+                        <div class="clr"></div>
+                    </div>
+                    <div id="ser-search" data-ng-show="search_show">
+                        <div class="ser-search-div">
+                            <label class="checkout-label" > Mã Hóa Đơn </label>
+                            <input class="checkout-input" ng-model="filter_code_room" type="text" placeholder="Mã Hóa Đơn"/>
+                            <div class="clr"></div>
+                        </div>
+                        <div class="ser-search-div">
+                            <label class="checkout-label" >Tên Khách Hàng</label>
+                            <input class="checkout-input " ng-model="filter_kh" type="text" placeholder="Tên Khách Hàng"/>
+                            <div class="clr"></div>
+                        </div>
+                        <div class="ser-search-div">
+                            <label class="checkout-label" >Nhân Viên </label>
+                            <ui-select class="checkout-input"  ng-model="user" theme="select2" on-select="set_scope('filter_nv',user.name)">
+                                <ui-select-match allow-clear="true" placeholder="Nhân Viên">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="user in users | propsFilter: {name: $select.search}">
+                                    <div ng-bind-html="user.name | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                            <div class="clr"></div>
+                        </div>
+
+                        <div class="ser-search-div" style="position: relative">
+                            <label class="checkout-label" >Từ Ngày </label>
+                            <input type="text" placeholder="Từ Ngày" class="checkout-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" />
+                            <img class="c-date" src="img/icon/date.png" />
+                            <div class="clr"></div>
+                        </div>
+                        <div class="ser-search-div" style=" border-bottom: 1px solid #187CAB; position: relative">
+                            <label class="checkout-label" >Đến Ngày </label>
+                            <input type="text" placeholder="Đến Ngày" class="checkout-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" />
+                            <img class="c-date" src="img/icon/date.png" />
+                            <div class="clr"></div>
+
+                        </div>
+                        <div style="border-top: 1px solid #21A0DC; padding: 10px ; text-align: right">
+                            <a class="btn ser-list-hide btn-mod-sm" data-ng-click="search_show=''">
+                                <img src="img/icon/list-hide.png"/>
+                                Ẩn Đi
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <table class="table-mod table m-b-none table-hover " >
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu</th>
+                            <th>Ngày </th>
+                            <th>Tên KH</th>
+                            <th>Tiền Hàng</th>
+                            <th data-ng-hide="tablet_hide" >Giảm Giá</th>
+                            <th data-ng-hide="tablet_hide">Khách Trả</th>
+                            <th data-ng-hide="tablet_hide">Tiền Thừa</th>
+                            <th>Nhân Viên </th>
+                            <th  style="width: 75px"></th>
+                        </tr>
+                        </thead>
+                        <tbody  ng-repeat="pbs in (pbss | datefilter:start:end  | orderBy:'-date'
+                                      | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                                      | filter: rulefilter
+                                      | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )">
+                        <tr ng-class="edit_pbs_id == pbs._id ?'tr-now':''"  class="color">
+                            <td data-ng-click="edit_pbs(pbs._id)">{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)">{{ pbs.code}}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)">{{ pbs.date | date:'dd-MM-yyyy'}}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)">{{ pbs.customer.name }}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)">{{ pbs.total | number : 0 }}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)" data-ng-hide="tablet_hide">{{ pbs.reduce | number : 0 }}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)" data-ng-hide="tablet_hide">{{ pbs.paid | number : 0 }}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)" data-ng-hide="tablet_hide">{{ pbs.paid - pbs.total + 1*pbs.reduce | number : 0 }}</td>
+                            <td data-ng-click="edit_pbs(pbs._id)">{{ pbs.user.name }}</td>
+                            <td>
+
+                                <a data-ng-show="session_user.role == 'admin'" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                   ng-bootbox-confirm-action="del(pbs)"  class="btn-mod-checkout tool-ob" title="Xóa Hóa Đơn">
+                                    <div class="tooltip-mod">Xóa Phiếu </div>
+                                    <img src="img/icon/icon-del.png">
+                                </a>
+
+                            </td>
+                        </tr>
+                        <tr class="tr-edit" data-ng-if="edit_pbs_id == pbs._id">
+                            <td colspan="10">
+                                <div class="service-div">
+                                    <div id="print-div" style="display: none">
+                                        <table>
+                                            <tr style="margin-bottom: 0px">
+                                                <th>STT</th>
+                                                <th>Sản Phẩm</th>
+                                                <th>SL</th>
+                                                <th>Đơn Giá</th>
+                                                <th>Thành Tiền</th>
+                                            </tr>
+                                            <tr class="line-tab-out">
+                                                <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+                                            </tr>
+                                            <tr ng-repeat="service in pbs.services">
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{service.name}}</td>
+                                                <td>{{service.qty}}</td>
+                                                <td>{{service.price| number:0}}</td>
+                                                <td>{{service.price *service.qty| number:0}}</td>
+                                            </tr>
+                                            <tr class="line-tab-out">
+                                                <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">Tổng Cộng</td>
+                                                <td>{{pbs.total | number : 0}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">Giảm Giá</td>
+                                                <td>{{pbs.reduce | number : 0}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">Tiền Khách Trả</td>
+                                                <td>{{pbs.paid | number : 0}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">Tiền Trả Lại</td>
+                                                <td>{{ pbs.paid - pbs.total + 1*pbs.reduce  | number : 0}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="ser-head">
+                                        <span class="ser-head-title">Thông Tin Hóa Đơn</span>
+                                        <div class="pull-right">
+                                            <span> Tổng cộng :</span>
+                                            <span class="ser-head-store"> {{ pbs.total - pbs.reduce | number : 0 }} </span>
+                                        </div>
+                                    </div>
+                                    <div class="ser-info">
+                                        <table class="check-table">
+                                            <tr>
+                                                <td class="check-tab-title"> Mã Hóa Đơn</td>
+                                                <td>{{pbs.code}}</td>
+                                                <td class="check-tab-title">Mã Giảm Giá</td>
+                                                <td>{{pbs.coupon?pbs.coupon :"Không Sử Dụng "}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="check-tab-title">Ngày Tạo</td>
+                                                <td>{{ pbs.date | date:'dd-MM-yyyy'}}</td>
+                                                <td class="check-tab-title">Tiền Hàng</td>
+                                                <td>{{ pbs.total | number : 0 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="check-tab-title">Mã Khách Hàng</td>
+                                                <td>{{ pbs.customer.code }}</td>
+                                                <td class="check-tab-title">Giảm Giá</td>
+                                                <td>{{ pbs.reduce | number : 0 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="check-tab-title">Tên Khách Hàng</td>
+                                                <td>{{ pbs.customer.name }}</td>
+                                                <td class="check-tab-title">Khách Trả</td>
+                                                <td>{{ pbs.paid | number : 0 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="check-tab-title">Nhân Viên</td>
+                                                <td>{{ pbs.user.name }}</td>
+                                                <td class="check-tab-title">Tiền Thừa</td>
+                                                <td>{{ pbs.paid - pbs.total + 1*pbs.reduce | number : 0 }}</td>
+                                            </tr>
+                                        </table>
+
+                                        <div class="check-sub">
+                                            Đơn Vị Tính : VNĐ
+                                        </div>
+                                        <a class="btn btn-check-edit pull-right" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                           ng-bootbox-confirm-action="del(pbs)" title="Xóa Hóa Đơn">
+                                            <img src="img/icon/c-del.png">
+                                            Xóa Hóa Đơn
+                                        </a>
+                                        <a class="btn btn-check-edit pull-right" data-ng-click="printDiv('print-div',pbs)">
+                                            <img src="img/icon/print.png" />
+                                            In Hóa Đơn
+                                        </a>
+
+
+                                    </div>
+                                </div>
+                                <div class="ser-div-right tablet-hide" data-ng-init="detail = true ; ret = false">
+                                    <div class="ser-head">
+                                        <span class="ser-head-title" ng-class=" detail?'ser-active':''" data-ng-click="detail = true ; ret = false">Chi Tiết Hóa Đơn</span>
+                                        <span class="ser-head-title" ng-class=" ret?'ser-active':''"  data-ng-click="detail = false ; ret = true">Lịch Sử Trả Hàng</span>
+                                    </div>
+                                    <div class="table-scroll">
+                                        <table class="table-mod table table-hover m-b-none" data-ng-show="detail">
+                                            <thead>
+                                            <tr class="tr-head">
+                                                <th>STT</th>
+                                                <th>Sản Phẩm</th>
+                                                <th class="text-center">Thuộc Tính</th>
+                                                <th class="text-center">Đơn Giá</th>
+                                                <th class="text-center">Số Lượng</th>
+                                                <th class="text-center">Thành Tiền</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr ng-repeat="service in pbs.services">
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ service.name }}</td>
+                                                <td class="text-center" data-ng-hide="service.nc">Mặc Định</td>
+                                                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_name}}</td>
+
+                                                <td class="text-center" data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                                                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                                                <td class="text-center">{{ service.qty | number : 0 }}</td>
+
+                                                <td class="text-center" data-ng-hide="service.nc">{{service.price *service.qty| number:0}}</td>
+                                                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price * service.qty | number:0}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                        <table class="table-mod table table-hover m-b-none "  data-ng-show="ret">
+                                            <thead>
+                                            <tr>
+                                                <th>STT</th>
+                                                <th>Mã Phiếu</th>
+                                                <th>Ngày </th>
+                                                <th>Tiền Hàng Trả</th>
+                                                <th>Nhân Viên </th>
+
+                                            </tr>
+                                            </thead>
+                                            <tbody  ng-repeat="return in returns| filter:{id_check : pbs._id }">
+                                            <tr >
+                                                <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                                                <td><a class="a-cl" ui-sref="app.return({code : return._id})">{{ return.code}}</a></td>
+                                                <td>{{ return.date | date:'dd-MM-yyyy'}}</td>
+                                                <td>{{ return.total | number : 0 }}</td>
+                                                <td>{{ return.user.name }}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center row" style="font-size: 12px">
+                        <div class="pull-left tab-prev tablet" data-ng-show="currentPage - 1 > 0" ng-click="currentPage = currentPage-1">TRANG TRƯỚC</div>
+                        <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage - 1 > 0" >TRANG TRƯỚC</div>
+                        <div class="pull-right tab-next tablet" data-ng-show="(currentPage)*pageSize < (pbss | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-click="currentPage = currentPage+1">TRANG SAU</div>
+                        <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage)*pageSize < (pbss | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" >TRANG SAU</div>
+
+                        <pagination max-size="10"   next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối" boundary-links="true"
+                                    rotate="false"  total-items="(pbss | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length/pageSize*10" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                    </div>
+                    <table id="extable" style="display: none" class="table-mod table m-b-none">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu</th>
+                            <th>Ngày </th>
+                            <th>Tên KH</th>
+                            <th>Tổng Cộng</th>
+                            <th>Giảm Giá</th>
+                            <th>Khách Trả</th>
+                            <th>Tiền Thừa</th>
+                            <th>Nhân Viên </th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  ng-repeat="pbs in (pbss | datefilter:start:end  | orderBy:'-date'
+                              | filter:{code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                              | filter: rulefilter )" >
+                            <!--<td data-ng-init="get_total_again(pbs)">{{ (currentPage-1)*pageSize + $index + 1 }}</td>-->
+                            <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                            <td>{{ pbs.code}}</td>
+                            <td>{{ pbs.date | date:'dd-MM-yyyy'}}</td>
+                            <td>{{ pbs.customer.name }}</td>
+                            <td>{{ pbs.total }}</td>
+                            <td>{{ pbs.reduce  }}</td>
+                            <td>{{ pbs.paid  }}</td>
+                            <td>{{ pbs.paid - pbs.total + 1*pbs.reduce }}</td>
+                            <td>{{ pbs.user.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tổng Cộng</td>
+                            <td>
+                                {{(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total')}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Tổng Vốn</td>
+                            <td>
+                                {{ (pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_mua')
+                                + (pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_chiphi' )}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Giảm Giá</td>
+                            <td>
+                                {{(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'reduce')}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lợi Nhuận</td>
+                            <td>
+                                {{(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total')
+                                -(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_mua')
+                                -(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'total_chiphi' )
+                                -(pbss | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter| sumOfValue:'reduce'  )
+                                }}
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

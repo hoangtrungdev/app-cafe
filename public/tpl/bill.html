@@ -1,0 +1,164 @@
+<div  data-ng-controller="BillCtrl">
+    <div id="default-left">
+        <div id="default-logo">
+            <div class="img">
+                <img src="img/default/logo.png" alt=""/>
+            </div>
+        </div>
+        <div class="d-left-title">CỬA HÀNG</div>
+        <div class="d-left-line"><img src="img/default/icon-name.png" alt=""/>
+            <input ng-focus="change_method()" ng-model="config.name" value="{{config.name}}" type="text" id="config_name" class="config-input" ng-keyup="edit_config('name')" />
+        </div>
+        <div class="d-left-line"><img src="img/default/icon-address.png" alt=""/>
+            <input ng-focus="change_method()" ng-model="config.address" value="{{config.address}}" type="text" id="config_address" class="config-input" ng-keyup="edit_config('address')" />
+        </div>
+        <div class="d-left-line"><img src="img/default/icon-mail.png" alt=""/>
+            <input ng-focus="change_method()" ng-model="config.email" value="{{config.email}}" type="text" id="config_email" class="config-input" ng-keyup="edit_config('email')" />
+        </div>
+        <div class="d-left-line"><img src="img/default/icon-phone.png" alt=""/>
+            <input ng-focus="change_method()" ng-model="config.phone" value="{{config.phone}}" type="text" id="config_phone" class="config-input" ng-keyup="edit_config('phone')" />
+        </div>
+        <div class="d-left-title m-top-10">
+            KHÁCH HÀNG
+            <a class="pull-right" data-ng-click="add_customer()" style="margin-top: -5px">
+                <img src="img/default/icon-add.png" />
+            </a>
+        </div>
+        <div class="d-left-line">
+            <img src="img/default/icon-user.png" alt=""/>
+            <ui-select style="width: 220px ; display: inline-block" ng-model="customer" on-select="customer_choose(customer)" theme="select2" >
+                <ui-select-match placeholder="Tên Khách Hàng">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="customer in customers | propsFilter: {name: $select.search, code: $select.search}">
+                    <div ng-bind-html="customer.name | highlight: $select.search"></div>
+                    <small>
+                        Mã : <span ng-bind-html="''+customer.code | highlight: $select.search"></span>
+                    </small>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div class="d-left-line">
+            <img src="img/default/icon-address.png" alt=""/>
+            {{customer.address?customer.address:"Đang Cập Nhật"}}
+        </div>
+        <div class="d-left-line">
+            <img src="img/default/icon-mail.png" alt=""/>
+            {{customer.email?customer.email:"Đang Cập Nhật"}}
+        </div>
+        <div class="d-left-line">
+            <img src="img/default/icon-phone.png" alt=""/>
+            {{customer.phone?customer.phone:"Đang Cập Nhật"}}
+        </div>
+        <div class="d-left-title m-top-10">THANH TOÁN</div>
+        <div class="d-left-line">TỔNG TIỀN
+            <span class="pull-right bold">
+            <input number-mask="" type="text" class="paid" ng-value="sum(bill_services) | number : 0" readonly/>
+            </span>
+        </div>
+        <div class="d-left-line">ĐÃ THANH TOÁN
+            <span class="pull-right bold">
+                <input number-mask="" type="text" class="paid" ng-model="paid" />
+            </span>
+        </div>
+        <div class="d-left-line">CÒN LẠI
+            <span class="pull-right bold">
+                <input number-mask="" type="text" class="paid" ng-value=" (  sum(bill_services) - paid  ) | number : 0 " readonly />
+            </span>
+        </div>
+        <div id="d-left-btn" ng-hide=" bill_services.length == 0 || customer==null" >
+            <a class="d-btn" data-ng-show="status_hide" data-ng-click="reset()">TẠO MỚI</a>
+            <a class="d-btn" data-ng-hide="status_hide" data-ng-click="save()">LƯU PHIẾU</a>
+            <a class="d-btn d-btn-mod" data-ng-click="printDiv('print-div')">IN PHIẾU</a>
+        </div>
+    </div>
+    <div id="default-right">
+        <div class=" wrapper-md default-title-out" >
+            <span class="default-title">Phiếu Chi</span>
+            <span class="default-title-code">SỐ : </span>
+            <span class="default-title-code-val">{{date | date : 'Hmmss' }}-{{date | date : 'ddMMyyyy' }}/PC-{{customer.code?customer.code:"NO-CUSTOMER"}}</span>
+            <input type="hidden" id="code" value="{{date | date : 'Hmmss' }}-{{date | date : 'ddMMyyyy' }}/PC-{{customer.code?customer.code:'NO-CUSTOMER'}}"/>
+            <span class="default-title-date">NGÀY : </span>
+            <span class="default-title-date-val">{{date | date : 'dd' }}</span>
+            <span class="default-title-date">THÁNG : </span>
+            <span class="default-title-date-val">{{date | date : 'MM' }}</span>
+            <span class="default-title-date">NĂM : </span>
+            <span class="default-title-date-val">{{date | date : 'yyyy' }}</span>
+
+            <a   data-ng-click="logout()" class="default-title-date pull-right"> Đăng Xuất </a>
+            <a data-ng-show="session_user.role == 'admin'" ui-sref="app.checkout" class="default-title-date pull-right"> Quản Lý </a>
+
+
+        </div>
+        <div id="right-in" class="panel-default" >
+
+            <table class="table-mod table ">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>NỘI DUNG</th>
+                    <th>SỐ TIỀN</th>
+                    <th style="width: 50px;">
+                        <a data-ng-click="add_service()">
+                            <img src="img/default/icon-add.png" />
+                        </a>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="service in bill_services">
+                    <td class="text-center" style="width: 50px;">{{ $index + 1 }}</td>
+                    <td><input type="text" class="pc-text"  ng-model="service.text" /></td>
+                    <td><input number-mask="" type="text" class="pc-text"  ng-model="service.value" /></td>
+                    <td style="width: 50px">
+                        <a><img src="img/icon/icon-trash.png" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                ng-bootbox-confirm-action="del_service(service)" ></i>
+                        </a>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- --print--- -->
+    <div id="print-div" style="display: none">
+        <table>
+            <tr style="margin-bottom: 0px">
+                <th>STT</th>
+                <th>Nội Dung</th>
+                <th>Số Tiền</th>
+            </tr>
+            <tr class="line-tab-out">
+                <td colspan="3" class="line-tab" >-----------------------------------------------------------------------------</td>
+            </tr>
+            <tr ng-repeat="service in bill_services">
+                <td>{{ $index + 1 }}</td>
+                <td>{{service.text}}</td>
+                <td>{{service.value}}</td>
+            </tr>
+            <tr class="line-tab-out">
+                <td colspan="3" class="line-tab" >-----------------------------------------------------------------------------</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="print-text-right">Tổng Cộng</td>
+                <td>{{sum(bill_services) | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="print-text-right">Đã Thanh Toán</td>
+                <td>{{paid | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="print-text-right">Còn Lại</td>
+                <td>{{ sum(bill_services) - paid    | number : 0}}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".page-in").height($(window).height()-100);
+        $(".page-in").mCustomScrollbar();
+    })
+</script>

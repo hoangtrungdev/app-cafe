@@ -1,0 +1,425 @@
+<div  data-ng-controller="DefaultCtrl" class="landscape" >
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-left', 'close-button':true}"></toaster-container>
+
+    <div>
+        <div id="default-top">
+            <div id="default-logo">
+                <div class="img">
+                    <img src="img/default/logo.png" alt=""/>
+                </div>
+            </div>
+            <div class="default-title-out" >
+                <span class="default-title tablet-hide">Bán Hàng</span>
+                <span class="d-link d-color  pull-left  tablet-hide">
+                    <div class="color-div"></div>
+                    <span class="color-span"> Trống </span>
+                    <div class="color-div" style="background: #ED5565"></div>
+                    <span class="color-span"> Đã Đặt </span>
+                    <div class="color-div" style="background: #F6BB42"></div>
+                    <span class="color-span">  Chờ món </span>
+                    <div class="color-div" style="background: #8CC152"></div>
+                    <span class="color-span">  Chờ thanh toán </span>
+                </span>
+                <a data-ng-click="logout()" class="d-link pull-right">
+                    <img src="img/icon/d-out.png"/>
+                    Đăng Xuất
+                </a>
+                <a target="_blank" data-ng-show="session_user.role == 'admin'" ui-sref="app.chart" class="d-link pull-right">
+                    <img src="img/icon/d-admin.png"/>
+                    Quản Lý
+                </a>
+                <a  data-ng-click="tra_hang()" class="d-link pull-right">
+                    <img src="img/icon/d-admin.png"/>
+                    Yêu Cầu Hủy
+                </a>
+
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div id="default-content">
+            <div id="default-left">
+                <div style="padding: 10px">
+                    <div id="map-top">
+                        <div data-ng-repeat="map in maps"  ng-class="(map._id === map_focus_now)?'active':''"
+                             class="map-tab "  data-ng-click="set_map_focus(map._id)" >
+                            <span>{{map.name}}</span>
+                        </div>
+                        <div class="clr"></div>
+                    </div>
+                    <div  id="containment-wrapper">
+                        <div data-ng-repeat="map in maps" ng-if="(map._id === map_focus_now)"     class="map-tab-content "
+                             ng-style="{'background-image':'url(img/{{map.img && 'uploads/' + map.img || 'default/map-no-bg.jpg'}})'}"
+                             style=" background-repeat: no-repeat; background-size: 100% 100%;"
+                        >
+
+                            <div class="ad-large-room" data-ng-repeat="room in rooms | filter:{floor_id : map._id} : true"
+                                 data-ng-click="actionChooseTable(room)"  ng-style="{'left': room.left + 'px' , 'top': room.top + 'px'}"  style="position: absolute"
+                                 ng-class="getClassRoom(room)"
+                            >
+
+                                <img class="img-icon-now bounce" ng-if="table_now._id == room._id" ng-src="img/icon/icon_now.png" >
+                                <span>{{room.name}}</span>
+                                <span  data-ng-if="room.parent" style="position: absolute ; padding: 3px; color: #FFF; border-radius: 5px;
+                                 font-size: 10px ; background: #0d8dc9 ; top: 15px ; right: -30px">Ghép với {{room.parent.name}}</span>
+                            </div>
+                            <div class="clr"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="default-menu">
+                <div id="d-menu-top" style="height: 57px">
+                    <div class="menu_cate" data-ng-init="key_menu = ''">
+                        <a ng-class="(key_menu == '')?'active':'' " data-ng-click="key_menu = '' ; show_menu = true">
+                            <img src="img/icon/d-menu-all.png"/>
+                            TẤT CẢ
+                        </a>
+                        <a ng-class="(key_menu == 'doan')?'active':'' " data-ng-click="key_menu = 'doan'; show_menu = true">
+                            <img src="img/icon/d-menu-1.png"/>
+                            THỨC ĂN
+                        </a>
+                        <a ng-class="(key_menu == 'douong')?'active':'' " data-ng-click="key_menu = 'douong'; show_menu = true">
+                            <img src="img/icon/d-menu-2.png"/>
+                            ĐỒ UỐNG
+                        </a>
+                    </div>
+                    <input id="d-fname" ng-model="filter_name" type="text" placeholder="Tên Sản Phẩm"/>
+                    <img id="d-search" ng-src="img/default/d-search.png" >
+                    <a id="d-toggle" data-ng-click="show_menu = !show_menu">
+                        <img ng-src="img/default/{{show_menu && 'd-icon-2.png' || 'd-icon-1.png'}}" >
+                    </a>
+                </div>
+                <div id="d-menu-bg">
+                    <div id="d-menu-in" data-slide-toggle="show_menu" data-slide-toggle-duration="300">
+                        <div ng-repeat="service in (services | filter: { category : { type : key_menu }}  | filter:{name : filter_name  , category : filter_cate } | orderBy:'-create'| startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )"
+                             class="pr-block" data-ng-click="actionAddServiceToTable(service)" title="{{service.name}}">
+                            <div class="pr-img">
+                                <img data-ng-if="service.img" ng-src="img/uploads/{{service.img}}" alt="{{ service.name }}"/>
+                                <img data-ng-if="!service.img" src="img/default/no_photo.jpg" alt="{{ service.name }}"/>
+                            </div>
+                            <div class="pr-info">
+                                <div class="pr-name">{{ service.name }}</div>
+                                <div class="pr-price">{{ service.price | number : 0   }}</div>
+                            </div>
+                        </div>
+                        <div class="clr"></div>
+                        <div class="text-center" >
+                            <pagination max-size="5"  rotate="false" total-items="(services | filter: { category : { type : key_menu }}  | filter:{name : filter_name  ,category : filter_cate }).length/pageSize*10" ng-model="currentPage"
+                                        previous-text="Trước" next-text="Sau"  ng-change="pageChanged(currentPage)"></pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="default-right">
+                <div ng-if="!table_now._id">
+                    <div class="map-right-title tablet-hide">
+                        SƠ ĐỒ BÀN
+                    </div>
+                    <div class="map-item animated fadeInRightBig" style="animation-delay :{{$index * 300}}ms" data-ng-repeat="map in maps"  ng-class="(map._id === map_focus_now)?'active':''">
+
+                        <div class="map-title">
+                            <img src="img/icon/map-icon.png" >
+                            {{map.name}}
+                        </div>
+                        <div style="padding: 5px 13px">
+                            <div class="ad-room" ng-class="getClassRoom(room)" data-ng-repeat="room in rooms | filter:{floor_id : map._id} : true"
+                                 data-ng-click="set_map_focus(map._id) ; actionChooseTable(room)" style="position: relative"
+                            >
+                                {{room.name}}
+                                <span  data-ng-if="room.parent" class="mini-ghep">{{room.parent.name}}</span>
+                            </div>
+                            <div class="clr"></div>
+                        </div>
+                    </div>
+                </div>
+                <div data-ng-repeat="room in rooms" ng-if="table_now._id == room._id"  >
+                    <a style="position: absolute; top: 5px; right: 5px ;" data-ng-click="actionClearTableChoose()">
+                        <span class="glyphicon glyphicon-remove-sign" ></span>
+                    </a>
+                    <div id="right-h" >
+                        <div id="right-h-top">
+                            <div class="right-h-head " ng-class="(tab_show == 'name')?'active':''"  data-ng-click="set_scope('tab_show','name')" >
+                                Hóa Đơn {{room.name}}
+                            </div>
+                            <div class="right-h-head" ng-class="(tab_show == 'detail')?'active':''" data-ng-click="set_scope('tab_show','detail')">
+                                Thông Tin {{room.name}}
+                            </div>
+                        </div>
+                        <div class="right-h-in"  >
+                            <div id="right-h-in-scroll" >
+                                <table class="table-mod table" data-ng-show="tab_show == 'name'">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 25px"></th>
+                                        <th>SẢN PHẨM</th>
+                                        <th>GIÁ</th>
+                                        <th>SL</th>
+                                        <th>THÀNH TIỀN</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody >
+                                    <tr data-ng-repeat="service in room.bill  track by $index">
+                                        <td>
+                                            <img ng-src="img/icon/{{service.status && 'table-service-wait.png' || 'table-service-done.png'}}"
+                                                 data-ng-click="actionChangeStatusServiceInTable(service)" style="cursor: pointer"
+                                            >
+                                        </td>
+                                        <td >{{service.name}}</td>
+                                        <td >{{service.price | number : 0}}</td>
+                                        <td ><input class="default-qty" type="number" data-ng-model="service.qty" data-ng-change="actionChangeQty(room)" min="1" ></td>
+                                        <td >{{service.qty * service.price | number : 0}}</td>
+
+                                        <td style="width: 20px">
+                                            <a><img src="img/icon/icon-trash.png" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                                    ng-bootbox-confirm-action="actionDeleteServiceInTable($index)" ></i>
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div data-ng-show="tab_show == 'detail'">
+                                    <div class="info-mod">
+                                        <div style="padding-top: 5px ; display: inline-block" data-ng-show="room.join_array.length == 0">( Ghép Bàn )</div>
+                                        <div class="ds-ban" data-ng-repeat="room_join in room.join_array">
+                                            <img src="img/icon/icon-del-join.png"  ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                                 ng-bootbox-confirm-action="actionDeleteJoin($index,room_join ,room)">
+                                            {{room_join.name}}
+                                        </div>
+                                        <a class=" btn btn-ser-add pull-right" data-ng-click="room.show_add = !room.show_add" style="padding: 2px 10px ; border-radius: 20px">
+                                            <img src="img/icon/ser-add.png">
+                                        </a>
+                                        <div class="clr"></div>
+
+                                        <div data-ng-if="room.show_add" style="position: absolute ; background: #103446 ; border-radius: 15px;
+                                         border: 1px solid #FFF; z-index: 1 ; left: 15px ; top: 85px; width: 365px">
+                                            <div class="panel-heading-mod" style=" padding: 7px 20px; color: #FFF; border-bottom: 1px solid #0a2735; border-radius: 15px 15px 0px 0px ;  box-shadow: 0px 0px 2px #cac7c7">
+                                                Danh Sách Bàn Có Thể Ghép
+                                            </div>
+                                            <div style="padding: 10px 5px">
+                                                <div class="ad-room" style="background: #FFF ; color: #000"
+                                                     data-ng-repeat="room_c in rooms | filter:{floor_id : room.floor_id} : true "
+                                                     data-ng-if="room_c._id != room._id && getClassRoom(room_c) == '' && !room_c.parent" data-ng-click="actionGhepBan(room_c,room)"
+                                                >
+                                                    {{room_c.name}}
+                                                </div>
+                                                <div class="clr"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ui-select  id='cus-choose' ng-model="room.customer"  theme="select2"  on-select="actionChooseRoomCustomer(room)" >
+                                        <ui-select-match placeholder="Tên Khách Hàng">{{$select.selected.name}}</ui-select-match>
+                                        <ui-select-choices repeat="customer in customers | propsFilter: {name: $select.search, code: $select.search, phone: $select.search}">
+                                            <div ng-bind-html="customer.name | highlight: $select.search"></div>
+                                            <small>
+                                                Mã : <span ng-bind-html="''+customer.code | highlight: $select.search"></span> ---
+
+                                                SĐT : <span ng-bind-html="''+customer.phone | highlight: $select.search"></span>
+                                            </small>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                    <a data-ng-click="add_customer()" id="cus-add">
+                                        <img src="img/default/icon-add.png" />
+                                    </a>
+                                    <div class="info-1">
+                                        <div class="d-left-line-info">
+                                            <img src="img/default/icon-user.png" alt=""/>
+                                            {{room.customer.name?room.customer.name:"Đang Cập Nhật"}}
+                                        </div>
+
+                                        <div class="d-left-line-info">
+                                            <img src="img/default/icon-mail.png" alt=""/>
+                                            {{room.customer.email?room.customer.email:"Đang Cập Nhật"}}
+                                        </div>
+                                        <div class="d-left-line-info">
+                                            <img src="img/default/icon-address.png" alt=""/>
+                                            {{room.customer.address?room.customer.address:"Đang Cập Nhật"}}
+                                        </div>
+                                        <div class="d-left-line-info">
+                                            <img src="img/default/icon-phone.png" alt=""/>
+                                            {{room.customer.phone?room.customer.phone:"Đang Cập Nhật"}}
+                                        </div>
+                                    </div>
+                                    <div id="coupon-info">
+                                        <div class="pull-left" style="margin-right: 10px ;position: relative">
+                                            <div class="c-info-div">MÃ GIẢM GIÁ </div>
+                                            <input class="c-info-input"  id="coupon" type="text" ng-model="room.coupon.code"  placeholder="Mã Giảm Giá"/>
+                                            <img src="img/icon/table-service-done.png" data-ng-click="check_coupon(room)" style="position: absolute ; left: 140px ; top: 32px">
+                                        </div>
+                                        <div class="pull-left">
+                                            <div class="c-info-div t-hide">SỐ TIỀN GIẢM GIÁ</div>
+                                            <input class="c-info-input t-hide" value="{{getValueCoupon(room) | number : 0}}" placeholder="0"/>
+                                        </div>
+                                        <div class="clr" style="margin-bottom: 10px"></div>
+                                        <div style="margin-bottom: 10px">
+                                            <div class="c-info-div">NHÂN VIÊN PHỤC VỤ </div>
+                                            <ui-select  id='user-choose' ng-model="room.user"  theme="select2"  on-select="actionChooseRoomUser(room)">
+                                                <ui-select-match placeholder="Nhân Viên Phục Vụ">{{$select.selected.name}}</ui-select-match>
+                                                <ui-select-choices repeat="staff in staffs | propsFilter: {name: $select.search, code: $select.search}">
+                                                    <div ng-bind-html="staff.name | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
+                                            VAT :
+                                            <label class="i-switch mini bg-info m-t-xs m-r pull-right " style="margin-left: 5px">
+                                                <input type="checkbox" ng-model="room.vat" data-ng-change="actionUpdateRoom(room,'vat', room.vat)">
+                                                <i></i>
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <div class="c-info-div">Giảm Giá Khác</div>
+                                            <input  class="c-info-input" style="width: 100%" number-mask=""  data-ng-change="actionUpdateRoom(room,'reduce', room.reduce )" data-ng-model="room.reduce"  />
+
+                                        </div>
+                                        <div>
+                                            <div class="c-info-div">GHI CHÚ </div>
+                                            <textarea data-ng-model="room.note" style="width: 100%" rows="4" data-ng-change="actionChangeNote(room)" class="c-info-input" placeholder="GHI CHÚ">
+                                                {{room.note}}
+                                            </textarea>
+
+                                        </div>
+                                        <div>
+                                            <label class="i-switch mini bg-info m-t-xs m-r pull-left" style="margin-left: 5px">
+                                                <input type="checkbox" ng-model="room.print" data-ng-change="actionUpdateRoom(room,'print', room.print)">
+                                                <i></i>
+                                            </label>
+                                            <div style="padding-top: 6px">
+                                                {{room.print?'Tự động':'Không'}} in hóa đơn sau khi thanh toán
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="right-mid"   >
+                        <span class="default-title-code">SỐ : </span>
+                        <span class="default-title-code-val">PBH-{{room.name}}-{{room.time | date : 'HHmmss' }}-{{room.time | date : 'ddMMyyyy' }}</span>
+                        <input type="hidden" id="code" value="PBH-{{room.name}}-{{room.time | date : 'HHmmss' }}-{{room.time | date : 'ddMMyyyy' }} "/>
+                        <div class="pull-right">
+                            <i datepicker-popup="{{format}}" ng-model="room.time" is-open="room.open" datepicker-options="dateOptions" close-text="Close"
+                               data-ng-change="actionUpdateRoom(room,'time',room.time)" popup-placement="auto bottom-right"  style="padding: 7px 10px 7px 25px ; float: left"  ng-click="open_room(room)" class="glyphicon glyphicon-calendar"></i>
+                            <span class="default-title-date-val">{{room.time | date : 'dd/MM/yyyy' }}</span>
+                        </div>
+
+                    </div>
+                    <div id="right-bot">
+                        <div class="d-left-line">TỔNG TIỀN
+                            <span class="pull-right bold">
+                              <span class="paid" >  {{actionSum(room.bill) | number : 0}}</span>
+                        </span>
+                        </div>
+                        <div class="d-left-line">PHỤ THU ( F1 )
+                            <span class="pull-right bold"><input id="extra" number-mask="" type="text" data-ng-change="actionUpdateRoom(room,'extra', room.extra )"  class="paid p-input" data-ng-model="room.extra" /></span>
+                        </div>
+                        <div class="d-left-line">GIẢM GIÁ
+                            <span class="pull-right bold paid">{{1*room.reduce + 1*getValueCoupon(room) | number : 0 }}</span>
+                        </div>
+                        <div class="d-left-line">CÒN LẠI
+                            <span class="pull-right bold"><span class="paid p-cam" > {{ room.conlai = ( actionSum(room.bill) + 1*room.extra  - ( 1*room.reduce + 1*getValueCoupon(room)))| number : 0}}</span></span>
+                        </div>
+                        <div class="d-left-line">CẦN THANH TOÁN ( {{room.vat? 'VAT : ' + (room.conlai/100*10 | number : 0 ) :"Không VAT"}} )
+                            <span class="pull-right bold">
+                                <span class="paid p-cam" >
+                                    {{ room.total =  (( room.vat?(room.conlai/100*10):0 ) +  room.conlai ) | number : 0}}</span>
+                            </span>
+                        </div>
+                        <div class="d-left-line">KHÁCH TRẢ ( F2 )
+                            <span class="pull-right bold">
+                            <input  number-mask="" type="text" id="paid" class="paid p-input tablet-hide" ng-model="room.paid" data-ng-change="actionUpdateRoom(room,'paid', room.paid )"/>
+                                <!--<a id="paid-tablet" ng-focus="change_method()" class="paid p-input tablet" data-ng-model="room.paid" data-ng-keypad-input="numeric" tabindex="1">{{paid[focus_now] | number : 0}}</a>-->
+                        </span>
+                        </div>
+                        <div class="d-left-line">TIỀN THỪA
+                            <span class="pull-right bold">
+                            <span class="paid p-xanh block">{{ room.money =  ( 1*room.paid - room.total)  | number : 0 }} </span>
+                        </span>
+                        </div>
+                        <div class="clr"></div>
+                        <div id="d-left-btn" >
+                            <!--   -->
+                            <div class="d-btn" style="background-color: #9C9C9C ;" ng-if="getClassRoom(room) != '' && !room.status ">  ĐẶT BÀN </div>
+                            <div class="d-btn" style="background-color: #ED5565 ;" ng-if="getClassRoom(room) != '' && room.status " data-ng-click=" actionDelBookTable(room)"> HỦY ĐẶT BÀN </div>
+                            <div class="d-btn" style="background-color: #ED5565" ng-if="getClassRoom(room) == '' && !room.status " data-ng-click=" actionBookTable(room)"> ĐẶT BÀN</div>
+                            <!--     -->
+                            <div class="d-btn" style=""
+                                 ng-if="!(room.money < 0 || getClassRoom(room) != 'table-done' )&& room.customer != '' && room.user != '' && session_user"
+                                 ng-bootbox-confirm="Bạn Muốn Thanh Toán Hóa Đơn Này ?"
+                                 ng-bootbox-confirm-action=" actionSaveBill(room)">THANH TOÁN</div>
+                            <div class="d-btn" style="background: #9C9C9C" ng-if="( room.money < 0 || getClassRoom(room) != 'table-done' ) || room.customer == '' || room.user == '' || !session_user">THANH TOÁN</div>
+                            <!--    -->
+                            <div class="d-btn"  ng-style=" (getClassRoom(room) != '' && getClassRoom(room) != 'table-book' )  && {'background-color':'#8CC152'}  || {'background-color': '#9C9C9C'}"
+                                 data-ng-click="actionUpdateSocket(room)">LƯU PHIẾU </div>
+                            <div class="d-btn" ng-style=" getClassRoom(room) == 'table-done'  && {'background-color':'#F07025'}  || {'background-color': '#9C9C9C'}"
+                                 data-ng-click="getClassRoom(room) == 'table-done' && printDiv('print-div')">IN PHIẾU</div>
+                            <div class="clr"></div>
+                        </div>
+                    </div>
+                    <div id="print-div" style="display: none">
+                        <div class="info-bill">Mã Hóa Đơn : PBH-{{room.name}}-{{room.time | date : 'HHmmss' }}-{{room.time | date : 'ddMMyyyy' }}</div>
+                        <div class="dive-bill">---------------------------------------</div>
+                        <table >
+                            <tr style="margin-bottom: 0px">
+                                <th>STT</th>
+                                <th>Sản Phẩm</th>
+                                <th>SL</th>
+                                <th>Đơn Giá</th>
+                                <th>Thành Tiền</th>
+                            </tr>
+                            <tr class="line-tab-out">
+                                <td colspan="5" >-------------------------------------------------------------------------------------</td>
+                            </tr>
+                            <tr data-ng-repeat="service in room.bill  track by $index">
+                                <td>{{ $index + 1 }}</td>
+                                <td >{{service.name}}</td>
+                                <td >{{service.qty | number : 0 }}</td>
+                                <td >{{service.price | number : 0}}</td>
+                                <td >{{service.qty * service.price | number : 0}}</td>
+                            </tr>
+                            <tr class="line-tab-out">
+                                <td colspan="5" >-------------------------------------------------------------------------------------</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="print-text-right">Tổng tiền </td>
+                                <td>{{ actionSum(room.bill) | number : 0}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="print-text-right">Phụ thu</td>
+                                <td>{{ room.extra | number : 0}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="print-text-right">Giảm giá</td>
+                                <td>{{1*room.reduce + 1*getValueCoupon(room) | number : 0 }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="print-text-right">VAT</td>
+                                <td>{{room.vat ? (room.conlai/100*10 | number : 0 ) :"Không VAT"}}</td>
+                            </tr>
+                            <tr class="line-tab-out">
+                                <td colspan="5" >-------------------------------------------------------------------------------------</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="clr"></div>
+            </div>
+
+        </div>
+    </div>
+    <!--
+        <div data-ng-keypad="numeric" data-auto-close="true" data-ng-draggable class="numpad animated fadeInRightBig">
+            <div ng-include="" src="'tpl/keypad/numeric.html'"></div>
+        </div>
+        <a class="d-btn  d-btn-mod tablet" id="show-num" ng-focus="change_method()"  data-ng-model="paid[focus_now]" data-ng-keypad-input="numeric" tabindex="1" >THANH TOÁN</a>
+    -->
+</div>
+
+
+<!-- --print--- -->
+
+</div>

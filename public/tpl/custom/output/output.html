@@ -1,0 +1,147 @@
+<div  data-ng-controller="OutputCtrl">
+    <!-- toaster directive -->
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <!-- / toaster directive -->
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div class="m-bc">
+                <div class="m-bc-title">DANH SÁCH DANH MỤC <span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+                <table class="table-mod table m-b-none table-hover " >
+                    <thead>
+                    <tr>
+                        <th>Đợt Nhập</th>
+                        <th>Ngày</th>
+                    </tr>
+                    </thead>
+                    <tbody ng-repeat="output in outputs | filter:filter | filter: rulefilter | orderBy:'-date' | startFrom:(currentPage_mobile-1)*15 | limitTo : 15 ">
+                    <tr>
+                        <td><a  ui-sref="app.detail_output({id : output._id})" style=" color: #0d8dc9">{{ output.name }}</a></td>
+                        <td>{{ output.date | date:'dd-MM-yyyy'}}</td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < outputs.length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < outputs.length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <!--<div id="note" class="tablet">-->
+        <!--<div id="note-detail">-->
+        <!--<a id="note-btn" data-ng-click="n_show = !n_show">-->
+        <!--<img  data-ng-show="n_show" src="img/icon/note-show.png" alt=""/>-->
+        <!--<img  data-ng-hide="n_show" src="img/icon/note-hide.png" alt=""/>-->
+        <!--</a>-->
+        <!--<div id="note-title">CHÚ THÍCH</div>-->
+        <!--<div id="note-info" data-ng-show="n_show">-->
+        <!--<div class="n-row">-->
+        <!--<img src="img/icon/icon-add.png">-->
+        <!--<div class="n-div"> Thêm SP đợt nhập hàng</div>-->
+        <!--</div>-->
+        <!--<div class="n-row">-->
+        <!--<img src="img/icon/icon-edit.png">-->
+        <!--<div class="n-div"> Thêm SP đợt nhập hàng</div>-->
+        <!--</div>-->
+        <!--<div class="n-row">-->
+        <!--<img src="img/icon/icon-detail.png">-->
+        <!--<div class="n-div"> Thêm SP đợt nhập hàng</div>-->
+        <!--</div>-->
+        <!--<div class="n-row">-->
+        <!--<img src="img/icon/icon-trash.png">-->
+        <!--<div class="n-div"> Thêm SP đợt nhập hàng</div>-->
+        <!--</div>-->
+        <!--<div class="clr"></div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <!--</div>-->
+        <div class="page-in" >
+            <div class="pad-left" >
+                <div class="panel panel-default panel-min" >
+                    <div class="panel-heading-mod">
+                        <div class="pull-left span-heading-mod">Danh Sách Đợt XUẤT Hàng</div>
+                        <a class="pull-right btn btn-ser-add" data-ng-click="add_output()">
+                            <img src="img/icon/ser-add.png">
+                            Thêm Đợt Xuất Hàng
+                        </a>
+                        <a class="pull-right btn btn-ser-add" ui-sref="app.store">
+                            <img src="img/icon/icon-nap.png">
+                            Danh Sách Đợt Nhập Hàng
+                        </a>
+
+
+
+                        <div class="clr"></div>
+                    </div>
+                    <div>
+                        <table class="table-mod table table-hover m-b-none" >
+                            <thead>
+                            <tr>
+                                <th >STT</th>
+                                <th>Mã Đợt Xuất Hàng</th>
+                                <th>Tên Đợt Xuất Hàng</th>
+                                <th>Tổng Tiền</th>
+                                <th>Ngày Tạo</th>
+                                <th>Người Tạo</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="output in outputs | filter:filter | filter: rulefilter | orderBy:'-date' | startFrom:(currentPage-1)*pageSize | limitTo : pageSize " >
+                                <td>{{ $index + 1 }}</td>
+                                <td>
+                                    <span data-ng-if="edit_output_id!=output._id" data-ng-dblclick="edit_output(output._id)">{{ output.code }}</span>
+                                    <input data-ng-if="edit_output_id==output._id" value="{{output.code}}" type="text" id="code{{output._id}}" class="mod-input" ng-keyup="edit_detail('code',output._id)" />
+                                </td>
+                                <td>
+                                    <span data-ng-if="edit_output_id!=output._id" data-ng-dblclick="edit_output(output._id)">{{ output.name }}</span>
+                                    <input data-ng-if="edit_output_id==output._id" value="{{output.name}}" type="text" id="name{{output._id}}" class="mod-input" ng-keyup="edit_detail('name',output._id)" />
+                                </td>
+                                <td>
+                                    {{services_output  | filter:{output_id : output._id }| sumValueServiceOutput   | number : 0 }}
+
+                                </td>
+                                <td>{{output.date | date:'dd-MM-yyyy'}}</td>
+                                <td>{{output.user.name}}</td>
+                                <td>
+                           <span class="pull-right" style="min-width: 50px">
+                                   <a  ui-sref="app.detail_output_add({id : output._id})" class="btn-mod-checkout tool-ob">
+                                       <img src="img/icon/icon-detail.png">
+                                       <div class="tooltip-mod">Xem Chi Tiết</div>
+                                   </a>
+                                <a data-ng-click="edit_output(output._id)"  class="tool-ob">
+                                    <img src="img/icon/icon-edit.png" data-ng-if="edit_output_id!=output._id">
+                                    <img src="img/icon/icon-save.png" data-ng-if="edit_output_id==output._id"></i>
+                                    <div class="tooltip-mod">Sửa Thông Tin</div>
+                                </a>
+                                <a class="tool-ob" ng-bootbox-confirm="Bạn Muốn Xóa Dữ Liệu Này ?" ng-bootbox-confirm-action="del(output)">
+                                    <img src="img/icon/icon-trash.png"  >
+                                    <div class="tooltip-mod">Xóa Dữ Liệu</div>
+
+                                </a>
+                            </span>
+                                </td>
+
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-center row" style="font-size: 12px">
+                            <pagination max-size="10"  boundary-links="true" rotate="false"  total-items="(outputs | filter:filter | filter:rulefilter ).length/pageSize*10" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

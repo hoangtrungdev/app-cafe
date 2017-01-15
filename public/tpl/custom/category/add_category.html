@@ -1,0 +1,25 @@
+<div  data-ng-controller="CategoryCtrl">
+    <form name="formValidate" class="form-cus form-horizontal form-validation" data-ng-submit="add()">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mã D.Mục</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Mã Danh Mục" ng-model="code" required >
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Tên D.Mục</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Tên Danh Mục" ng-model="name" required >
+            </div>
+        </div>
+        <input type="hidden"  ng-model="type"  >
+        <div class="text-right  lter">
+            <button type="submit"class="btn btn-d-pop">
+                <img src="img/icon/pop-ok.png" />
+                Xác Nhận
+            </button>
+            <div class="clr"></div>
+        </div>
+    </form>
+</div>
+

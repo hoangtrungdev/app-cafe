@@ -1,0 +1,31 @@
+<div  data-ng-controller="CompanyCtrl">
+    <form name="formValidate" class="form-horizontal form-validation" data-ng-submit="add()">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Tên Công Ty</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Tên Công Ty" ng-model="company" >
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Địa Chỉ (VAT)</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Địa Chỉ (VAT)" ng-model="vat" >
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">MST</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="MST" ng-model="mst" >
+            </div>
+        </div>
+
+        <div class="line line-dashed b-b line-lg center"></div>
+
+        <div class="text-right  lter">
+            <button type="submit" class="btn-mod-full pull-right">Xác Nhận</button>
+            <div class="clr"></div>
+        </div>
+
+    </form>
+</div>
+

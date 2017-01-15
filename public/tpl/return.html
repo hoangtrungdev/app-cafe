@@ -1,0 +1,295 @@
+<div  class="portrait">
+    <div style="position: absolute ; left: 0 ; right: 0 ; top: 0 ; bottom: 0 ; text-align: center ; vertical-align: middle">
+        <img src="img/por.gif"/>
+    </div>
+</div>
+<div  data-ng-controller="ReturnCtrl"  class="landscape">
+<toaster-container toaster-options="{'position-class': 'toast-bottom-left', 'close-button':true}"></toaster-container>
+
+<div data-ng-show="!portrait">
+<div id="default-top">
+    <div id="default-logo">
+        <div class="img">
+            <img src="img/default/logo.png" alt=""/>
+        </div>
+    </div>
+    <div class=" wrapper-md default-title-out" >
+        <span class="default-title">Phiếu Trả Hàng</span>
+
+        <a data-ng-click="logout()" class="d-link pull-right">
+            <img src="img/icon/d-out.png"/>
+            Đăng Xuất
+        </a>
+        <a target="_blank" data-ng-show="session_user.role == 'admin'" ui-sref="app.chart" class="d-link pull-right">
+            <img src="img/icon/d-admin.png"/>
+            Quản Lý
+        </a>
+        <a   class="d-link pull-right">
+            <img src="img/icon/d-p.png"/>
+            Phiếu Bán Sỉ
+        </a>
+        <a target="_blank" ui-sref="default" class="d-link pull-right">
+            <img src="img/icon/d-p.png"/>
+            Phiếu Bán Hàng
+        </a>
+
+    </div>
+    <div class="clear"></div>
+</div>
+<div id="default-left">
+    <div class="r-bill" data-ng-show="code_check[focus_now]">
+        <div class="r-b-title">{{config.name}}</div>
+        <div class="r-b-line text-center">.......................................................</div>
+        <div class="r-b-title">{{config.address}}</div>
+        <div class="r-b-title">Điện thoại : {{config.phone}}</div>
+        <div class="r-b-line text-center">.......................................................</div>
+        <div class="r-b-title">Mã Hóa Đơn : <span class="color-blue"> {{code_check[focus_now]}} </span></div>
+        <div class="r-b-line text-center">..................................</div>
+        <table class="table r-b-table table-bordered">
+            <thead>
+            <tr>
+                <th class="text-center">STT</th>
+                <th>Sản phẩm</th>
+                <th class="text-center">Thuộc tính</th>
+                <th class="text-center">Giá</th>
+                <th class="text-center">SL</th>
+                <th class="text-center">Thành tiền</th>
+            </tr>
+            </thead>
+            <tbody >
+            <tr ng-repeat="service in bill_services[focus_now]">
+                <td class="text-center">{{ $index + 1 }}</td>
+                <td >{{service.name}}</td>
+                <td class="text-center">{{service.nc?service.nc.nc_name:'mặc định'}}</td>
+                <td class="text-center" data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                <td class="text-center">{{service.qty| number:0}}</td>
+                <td class="text-center" data-ng-hide="service.nc">{{service.price *service.qty| number:0}}</td>
+                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price * service.qty | number:0}}</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-right color-blue">Tổng Cộng</td>
+                <td class="text-center">{{total[focus_now] | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-right color-blue">Giảm Giá</td>
+                <td class="text-center">{{check_reduce[focus_now] | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-right color-blue">Tiền Khách Trả</td>
+                <td class="text-center">{{check_paid[focus_now] | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-right color-blue">Tiền Trả Lại</td>
+                <td class="text-center">{{check_paid[focus_now] - check_reduce[focus_now] - total[focus_now] | number : 0}}</td>
+            </tr>
+            </tbody>
+
+        </table>
+        <div class="r-b-title">Xin cảm ơn quý khách</div>
+        <div class="r-b-line text-center" style="margin-bottom: 20px">..................................</div>
+
+        <div>Thu Ngân : {{check_user[focus_now].name}} </div>
+        <div>Mã Giảm Giá : {{coupon[focus_now]? coupon[focus_now].code+' -- '+ (coupon[focus_now].type == 'percent' ? coupon[focus_now].value + " %" : ( coupon[focus_now].value | number : 0 )):"Không sử dụng"}}</div>
+
+
+    </div>
+</div>
+
+<div id="default-right">
+    <div id="right-h" >
+        <div id="right-h-top">
+            <div data-ng-repeat="bill in bills" ng-class="(bill._id == focus_now)?'active':''" class="right-h-head" data-ng-click="set_focus(bill)">
+                {{ bill.stt }}
+                <span class="right-h-x" data-ng-click="del_this(bill)"><i class="fa fa-close"></i></span>
+            </div>
+            <a data-ng-click="tra_hang()" class="tra-add" >
+                <img src="img/icon/add-bill.png" />
+                THÊM PHIẾU TRẢ HÀNG
+            </a>
+        </div>
+        <div class="right-h-in"data-ng-show="bills.length == 0">
+            <div class="text-center">
+                Chưa có phiếu trả hàng !!
+            </div>
+        </div>
+        <div class="right-h-in" data-ng-repeat="bill in bills" ng-class="(bill._id == focus_now)?'show':'hidden'">
+            <div id="right-h-in-scroll" >
+                <table class="table-mod table ">
+                    <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>SẢN PHẨM</th>
+                        <th class="text-center">THUỘC TÍNH</th>
+                        <th class="text-center">ĐƠN GIÁ</th>
+                        <th class="text-center">SL TRẢ</th>
+                        <th class="text-center">SL MUA</th>
+                        <th class="text-center">THÀNH TIỀN</th>
+                    </tr>
+                    </thead>
+                    <tbody >
+                    <tr ng-repeat="service in bill_services[bill._id]" data-ng-init="(!service.qty_max)?service.qty_max=service.qty:service.qty_max=service.qty_max;service.qty_max = service.qty_max - service.qty_tra ;service.qty_tra = 0">
+                        <td class="text-center" style="width: 50px;">{{ $index + 1 }}</td>
+                        <td >{{service.name}}</td>
+                        <td class="text-center">{{service.nc?service.nc.nc_name:'Mặc Định'}}</td>
+                        <td class="text-center" data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                        <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                        <td class="text-center">
+                            <button class="number-a" data-ng-click="service.qty_tra = (service.qty_tra < 1)? 0 :service.qty_tra - 1 ">-</button>
+                            <input number-mask=""  class="d-number"  ng-model="service.qty_tra" data-ng-change="check_max(service)" ng-focus="change_method()"/>
+                            <button class="number-a-plus" data-ng-click="service.qty_tra = (service.qty_tra >= service.qty_max)? service.qty_max :service.qty_tra + 1 ">+</button>
+                        </td>
+
+                        <td class="text-center">{{service.qty_max| number:0}}</td>
+                        <td class="text-center" data-ng-hide="service.nc">{{service.price *service.qty_tra| number:0}}</td>
+                        <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price * service.qty_tra | number:0}}</td>
+
+
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+    <div id="right-mid">
+        <span class="default-title-code">SỐ : </span>
+        <span class="default-title-code-val">{{date_bill[focus_now] | date : 'Hmmss' }}-{{date_bill[focus_now] | date : 'ddMMyyyy' }}/PTH-{{customer.code?customer.code:"NO-CUSTOMER"}}</span>
+        <input type="hidden" id="code" value="{{date_bill[focus_now] | date : 'Hmmss' }}-{{date_bill[focus_now] | date : 'ddMMyyyy' }}/PTH-{{customer.code?customer.code:'NO-CUSTOMER'}}"/>
+        <div class="pull-right">
+            <span class="default-title-date">NGÀY : </span>
+            <span class="default-title-date-val">{{date_bill[focus_now] | date : 'dd' }}</span>
+            <span class="default-title-date">THÁNG : </span>
+            <span class="default-title-date-val">{{date_bill[focus_now] | date : 'MM' }}</span>
+            <span class="default-title-date">NĂM : </span>
+            <span class="default-title-date-val">{{date_bill[focus_now] | date : 'yyyy' }}</span>
+        </div>
+    </div>
+    <div id="right-bot">
+        <div id="r-bot-left">
+            <div id="r-bot-left-in">
+                <div style="height: 45px ; display: block ; padding: 10px ;color: #ccd1d9 ; font-size: 20px">
+                    Thông Tin Khách Hàng
+                </div>
+                <div id="info-1">
+                    <div class="d-left-line-info">
+                        <img src="img/default/icon-user.png" alt=""/>
+                        {{customer.name?customer.name:"Đang Cập Nhật"}}
+                    </div>
+                    <div class="d-left-line-info">
+                        <img src="img/default/icon-address.png" alt=""/>
+                        {{customer.address?customer.address:"Đang Cập Nhật"}}
+                    </div>
+                    <div class="d-left-line-info">
+                        <img src="img/default/icon-mail.png" alt=""/>
+                        {{customer.email?customer.email:"Đang Cập Nhật"}}
+                    </div>
+                    <div class="d-left-line-info">
+                        <img src="img/default/icon-phone.png" alt=""/>
+                        {{customer.phone?customer.phone:"Đang Cập Nhật"}}
+                    </div>
+                </div>
+                <div id="line-1"></div>
+                <div id="com-info">
+                    <div class="d-left-line"><img src="img/default/icon-name.png" alt=""/>
+                        <input ng-focus="change_method()" ng-model="config.name" value="{{config.name}}" type="text" id="config_name" class="config-input" ng-keyup="edit_config('name')" />
+                    </div>
+                    <div class="d-left-line"><img src="img/default/icon-address.png" alt=""/>
+                        <input ng-focus="change_method()" ng-model="config.address" value="{{config.address}}" type="text" id="config_address" class="config-input" ng-keyup="edit_config('address')" />
+                    </div>
+                    <div class="d-left-line"><img src="img/default/icon-mail.png" alt=""/>
+                        <input ng-focus="change_method()" ng-model="config.email" value="{{config.email}}" type="text" id="config_email" class="config-input" ng-keyup="edit_config('email')" />
+                    </div>
+                    <div class="d-left-line"><img src="img/default/icon-phone.png" alt=""/>
+                        <input ng-focus="change_method()" ng-model="config.phone" value="{{config.phone}}" type="text" id="config_phone" class="config-input" ng-keyup="edit_config('phone')" />
+                    </div>
+                </div>
+                <div id="coupon-info" style="color: #ccd1d9">
+                    <div class="c-info-div">MÃ GIẢM GIÁ</div>
+                    <div class="c-info-div">{{coupon[focus_now]? coupon[focus_now].code+' -- '+ (coupon[focus_now].type == 'percent' ? coupon[focus_now].value + " %" : ( coupon[focus_now].value | number : 0 )):"Không sử dụng"}}</div>
+
+
+                </div>
+            </div>
+        </div>
+        <div id="r-bot-right">
+            <div id="r-bot-right-in">
+                <div id="r-bot-title">THANH TOÁN</div>
+                <div class="d-left-line">TỔNG TIỀN
+                    <span class="pull-right bold">
+                    <input number-mask="" type="text" class="paid " ng-value="sum(bill_services[focus_now]) | number : 0" readonly/>
+                    </span>
+                </div>
+                <div class="d-left-line">GIẢM GIÁ
+                    <span class="pull-right bold">
+                        <input number-mask="" type="text" class="paid " readonly ng-value="reduce[focus_now] = ( coupon[focus_now]?(coupon[focus_now].type=='percent'?coupon[focus_now].value*sum(bill_services[focus_now])/100:sum(bill_services[focus_now])/total[focus_now]*coupon[focus_now].value):0  )| number : 0" ng-focus="change_method()"/>
+                    </span>
+                </div>
+                <div class="d-left-line">PHÍ TRẢ HÀNG
+                    <span class="pull-right bold">
+                        <input number-mask="" type="text" id="paid" class="paid p-input" ng-model="paid[focus_now]" ng-focus="change_method()"/>
+                    </span>
+                </div>
+                <div class="d-left-line">TIỀN TRẢ KHÁCH
+                    <span class="pull-right bold">
+                        <input number-mask="" type="text" class="paid p-xanh" ng-value="  sum(bill_services[focus_now])- reduce[focus_now] - paid[focus_now] | number : 0 " readonly />
+                    </span>
+                </div>
+                <div id="d-left-btn" ng-hide="sum(bill_services[focus_now]) == 0" >
+                    <a class="d-btn" data-ng-hide="status_hide[focus_now]" data-ng-click="save()" >LƯU PHIẾU</a>
+                    <a class="d-btn" data-ng-hide="!status_hide[focus_now]" data-ng-click="del_bill()">XÓA PHIẾU</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+
+<!-- --print--- -->
+<div id="print-div" style="display: none">
+    <table >
+        <tr style="margin-bottom: 0px">
+            <th>STT</th>
+            <th>Sản Phẩm</th>
+            <th>SL</th>
+            <th>Đơn Giá</th>
+            <th>Thành Tiền</th>
+        </tr>
+        <tr class="line-tab-out">
+            <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+        </tr>
+        <tr ng-repeat="service in bill_services[focus_now]">
+            <td>{{ $index + 1 }}</td>
+            <td class="print-text-left">{{ ( service.name + (service.nc.nc_name?" ( "+service.nc.nc_name+" )":"") ) | limitTo:15 }}</td>
+            <td>{{service.qty}}</td>
+            <td>{{service.price| number:0}}</td>
+            <td>{{service.price *service.qty| number:0}}</td>
+        </tr>
+        <tr class="line-tab-out">
+            <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="print-text-right">Tổng Cộng</td>
+            <td>{{sum(bill_services[focus_now]) | number : 0}}</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="print-text-right">Giảm Giá</td>
+            <td>{{reduce[focus_now] | number : 0}}</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="print-text-right">Tiền Khách Trả</td>
+            <td>{{paid[focus_now] | number : 0}}</td>
+        </tr>
+        <tr>
+            <td colspan="4" class="print-text-right">Tiền Trả Lại</td>
+            <td>{{ paid[focus_now] - sum(bill_services[focus_now]) + 1*reduce  | number : 0}}</td>
+        </tr>
+    </table>
+</div>
+</div>

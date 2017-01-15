@@ -1,0 +1,45 @@
+<div class="portrait">
+    Ứng dụng không hỗ trợ màn hình hiện tại !!!
+</div>
+<div class="landscape">
+    <div data-ng-include=" 'tpl/blocks/settings.html' " class="settings panel" style="border: 1px solid #dee5e7"></div>
+
+    <div id="header">
+        <img id="logo-ad" src="img/logo-admin.png" alt="logo"/>
+        <div class="pull-right tablet" id="tablet-menu" ui-sref="app.chart">
+            <img src="img/icon/tablet-menu.png"/>
+        </div>
+        <div class="pull-right pad-15 tablet-hide">
+            <a data-ng-click="logout()" class="header-a">
+                <img src="img/icon/log-out.png"/>
+                Đăng Xuất
+            </a>
+        </div>
+        <div class="pull-right pad-15 none-mobile">
+            <a ui-sref="app.log" class="header-a">
+                <img src="img/icon/log.png"/>
+                Logs
+            </a>
+        </div>
+        <div class="pull-right pad-15 none-mobile tablet">
+            <a ui-sref="default" class="header-a">
+                <img src="img/icon/log.png"/>
+                Bán Hàng
+            </a>
+        </div>
+    </div>
+    <!-- nav -->
+    <nav ui-nav class="navi" ng-include="'tpl/blocks/nav.html'"></nav>
+    <!--<nav ui-nav data-ng-if="session_user.role == 'admin'" class="navi" ng-include="'tpl/blocks/nav.html'"></nav>-->
+    <!--<nav ui-nav data-ng-if="session_user.role == 'staff'" class="navi" ng-include="'tpl/blocks/nav_mod.html'"></nav>-->
+    <!-- nav -->
+
+    <!-- content -->
+    <div class="app-content">
+
+        <div ui-butterbar></div>
+        <a href class="off-screen-toggle hide" ui-toggle-class="off-screen" data-target=".app-aside" ></a>
+        <div class="app-content-body fade-in-right-big" ui-view></div>
+    </div>
+    <!-- /content -->
+</div>

@@ -1,0 +1,72 @@
+<div  data-ng-controller="StoreDetailCtrl">
+    <div id="de-excel">
+        <div data-ng-click="show_success = !show_success" class="d-e-row">Cập nhật thành công <span class="pull-right" style="color: green">{{detail_success.length}} sản phẩm</span></div>
+        <table data-ng-show="show_success" class="table-mod table table-hover m-b-none table-excel">
+            <thead>
+            <tr class="tr-head">
+                <th >STT</th>
+                <th data-ng-show="show_code">Mã Sản Phẩm</th>
+                <th data-ng-show="show_name">Tên Sản Phẩm</th>
+
+            </tr>
+            </thead>
+            <tbody ng-repeat="service in detail_success">
+            <tr ng-class=" store_date == service.store_date ? 'tr-new' : ''">
+                <td>{{ $index + 1 + pageSize*(currentPage-1)}}
+                </td>
+                <td data-ng-show="show_code">{{ service.code }}</td>
+                <td data-ng-show="show_name">{{ service.name }}</td>
+            </tr>
+            </tbody>
+
+        </table>
+        <div data-ng-click="show_have = !show_have" class="d-e-row">  Dữ liệu trùng <span class="pull-right" style="color: #ec7424">{{detail_have.length}} sản phẩm</span></div>
+        <table data-ng-show="show_have" class="table-mod table table-hover m-b-none table-excel">
+            <thead>
+            <tr class="tr-head">
+                <th >STT</th>
+                <th data-ng-show="show_code">Mã Sản Phẩm</th>
+                <th data-ng-show="show_name">Tên Sản Phẩm</th>
+
+            </tr>
+            </thead>
+            <tbody ng-repeat="service in detail_have">
+            <tr ng-class=" store_date == service.store_date ? 'tr-new' : ''">
+                <td>{{ $index + 1 + pageSize*(currentPage-1)}}
+                </td>
+                <td data-ng-show="show_code">{{ service.code }}</td>
+                <td data-ng-show="show_name">{{ service.name }}</td>
+            </tr>
+            </tbody>
+
+        </table>
+        <div data-ng-click="show_error = !show_error" class="d-e-row">Dữ liệu lỗi <span class="pull-right" style="color: red">{{detail_error.length}} sản phẩm</span></div>
+        <table data-ng-show="show_error" class="table-mod table table-hover m-b-none table-excel">
+            <thead>
+            <tr class="tr-head">
+                <th >STT</th>
+                <th data-ng-show="show_code">Mã Sản Phẩm</th>
+                <th data-ng-show="show_name">Tên Sản Phẩm</th>
+
+            </tr>
+            </thead>
+            <tbody ng-repeat="service in detail_error">
+            <tr ng-class=" store_date == service.store_date ? 'tr-new' : ''">
+                <td>{{ $index + 1 + pageSize*(currentPage-1)}}
+                </td>
+                <td data-ng-show="show_code">{{ service.code }}</td>
+                <td data-ng-show="show_name">{{ service.name }}</td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+    <div class="text-right" style="margin-top: 20px">
+        <button class="btn btn-ser-save pull-right" style="background: #ed5565" data-dismiss="modal">
+            <img src="img/icon/pop-cancel.png" />
+            Hủy
+        </button>
+        <div class="clr"></div>
+    </div>
+</div>
+

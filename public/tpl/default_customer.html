@@ -1,0 +1,44 @@
+<div  data-ng-controller="DefaultCtrl">
+    <form  name="form_cus" class="form-horizontal form-validation form-cus" data-ng-submit="add_cus_default()" novalidate="">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mã KH</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Mã KH" ng-model="code" required data-ng-focus="change_method()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Họ Tên</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Họ Tên" ng-model="name" required data-ng-focus="change_method()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Email</label>
+            <div class="col-sm-9">
+                <input type="email" class="form-control" placeholder="Email" ng-model="email"  data-ng-focus="change_method()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Điện Thoại</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Điện Thoại" ng-model="phone" data-ng-focus="change_method()">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Địa Chỉ</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Địa Chỉ" ng-model="address"  data-ng-focus="change_method()">
+            </div>
+        </div>
+
+        <div class="text-right  lter">
+            <button type="submit"class="btn btn-d-pop">
+            <img src="img/icon/pop-ok.png" />
+                Xác Nhận
+            </button>
+        </div>
+
+    </form>
+</div>
+

@@ -1,0 +1,47 @@
+<!-- settings -->
+<button class="btn btn-default no-shadow pos-abt" ui-toggle-class="active" target=".settings">
+  <i class="fa fa-spin fa-gear"></i>
+</button>
+<div class="panel-heading" style="background: #f6f8f8">
+  CÀI ĐẶT THÔNG TIN
+</div>
+<div class="panel-body">
+  <form class="bs-example form-horizontal ng-pristine ng-valid">
+    <div class="form-group">
+      <label class="col-lg-3 control-label">Tên Quán</label>
+      <div class="col-lg-9">
+        <input ng-model="config.name" value="{{config.name}}" type="text" id="config_name" class="form-control" ng-change="edit_config('name')" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-3 control-label">Địa Chỉ</label>
+      <div class="col-lg-9">
+        <input ng-model="config.address" value="{{config.address}}" type="text" id="config_address" class="form-control" ng-change="edit_config('address')" />
+
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-3 control-label">Email</label>
+      <div class="col-lg-9">
+        <input ng-model="config.email" value="{{config.email}}" type="text" id="config_email" class="form-control" ng-change="edit_config('email')" />
+
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-3 control-label">Điện Thoại</label>
+      <div class="col-lg-9">
+        <input ng-model="config.phone" value="{{config.phone}}" type="text" id="config_phone" class="form-control" ng-change="edit_config('phone')" />
+
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-lg-3 control-label">Pass Wifi</label>
+      <div class="col-lg-9">
+        <input ng-model="config.wifi" value="{{config.wifi}}" type="text" id="config_wifi" class="form-control" ng-change="edit_config('wifi')" />
+
+      </div>
+    </div>
+
+  </form>
+</div>
+<!-- /settings -->

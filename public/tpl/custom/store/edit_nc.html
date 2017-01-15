@@ -1,0 +1,40 @@
+<div  data-ng-controller="StoreDetCtrl" id="service">
+    <form name="form_service" class="form-horizontal form-validation" data-ng-submit="update_nc(now)" novalidate="">
+
+        <table class="table-mod table table-bordered m-b-none">
+            <thead>
+            <tr>
+                <th >STT</th>
+                <th>Tên Thuộc Tính</th>
+                <th>Số Lượng</th>
+                <th>Giá</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="nc in now.ncs">
+                <td>{{$index + 1}}</td>
+                <td><input ng-model="nc.nc_name" class="mod-input" placeholder="Tên Thuộc Tính" /></td>
+                <td><input ng-model="nc.nc_qty" class="mod-input" placeholder="Số Lượng" type="number" min="0" /></td>
+                <td><input ng-model="nc.nc_price" class="mod-input" placeholder="Giá" number-mask="" /></td>
+                <td>
+                    <a>
+                        <img src="img/icon/icon-trash.png" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                             ng-bootbox-confirm-action="del_nc_update(nc)" >
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <a class="btn-mod-full blue pull-right" data-ng-click="add_nc_update()" style="margin: 10px 0px">Thêm</a>
+
+        <div class="line line-dashed b-b line-lg center"></div>
+        <div class="text-right  lter">
+            <a data-dismiss="modal" id="close"></a>
+            <button type="submit" class="btn-mod-full pull-right">Xác Nhận</button>
+            <div class="clr"></div>
+        </div>
+
+    </form>
+</div>
+

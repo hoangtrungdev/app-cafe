@@ -1,0 +1,63 @@
+<div  data-ng-controller="ServiceTamCtrl">
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <div class="page-in" >
+        <div class="pad-left" >
+            <div class="panel panel-default panel-min">
+                <div class="panel-heading-mod">
+                    <div class="pull-left span-heading-mod">Danh Sách Sản Phẩm Tạm</div>
+                    <a   ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Đã Chọn ?"   ng-bootbox-confirm-action="del_list()" class="pull-right btn btn-ser-add" style="background: #ed5565 !important;">
+                        Xóa Mục Đã Chọn
+                    </a>
+                    <a   ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Tất Cả Dữ Liệu ?"   ng-bootbox-confirm-action="del_all()"  class="pull-right btn btn-ser-add" style="background: #ed5565 !important;">
+                        Xóa Tất Cả
+                    </a>
+                    <div class="clr"></div>
+                </div>
+                <div>
+                    <table class="table-mod table table-hover m-b-none">
+                        <thead>
+                        <tr class="tr-head">
+                            <th >STT</th>
+                            <th >Mã Sản Phẩm</th>
+                            <th >Tên Sản Phẩm</th>
+                            <th >Số Lượng</th>
+                            <th >Người Tạo</th>
+                            <th >Ngày Tạo</th>
+
+                            <th style="min-width: 120px ; text-align: center">Tác Vụ</th>
+                        </tr>
+                        </thead>
+                        <tbody >
+                        <tr ng-repeat="service in service_tam ">
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ service.code }}</td>
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.value }}</td>
+                            <td>{{ service.user.name }}</td>
+                            <td>{{service.created | date:'dd-MM-yyyy'}}</td>
+
+
+                            <td class="text-center">
+                                <a class="tool-ob" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"   ng-bootbox-confirm-action="del(service)">
+                                    <img src="img/icon/icon-trash.png"  >
+                                    <div class="tooltip-mod">Xóa Dữ Liệu</div>
+
+                                </a>
+                            </td>
+                            <td class="td-check" style="width: 50px" >
+                                <label class="i-checks i-checks-sm">
+                                    <input type="checkbox" ng-model="service.check" ><i></i>
+                                </label>
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

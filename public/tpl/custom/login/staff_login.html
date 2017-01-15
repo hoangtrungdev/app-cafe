@@ -1,0 +1,33 @@
+<div id="login">
+    <div class="container" ng-controller="LoginController" ng-init="app.settings.container = false;" id="login-w" >
+        <div id="login-out" class="m-b-lg">
+            <div id="login-top"></div>
+            <div id="login-logo"><img src="img/logo-login.png" alt="logo"/></div>
+            <form name="form" class="form-validation" data-ng-submit="login()">
+                <div class="text-danger wrapper text-center" ng-show="authError">
+                    {{authError}}
+                </div>
+                <div class="login-div-input">
+                    <img src="img/login-user.png" />
+                    <input type="text" placeholder="Tên Đăng Nhập" class="form-control login-input" ng-model="user.username" required>
+                </div>
+                <div class="login-div-input">
+                    <img src="img/login-pass.png" />
+                    <input type="password" placeholder="Mật Khẩu" class="form-control login-input" ng-model="user.password" required>
+                </div>
+                <div id="login-forget">
+                    <a href="" class="pull-right">Quên Mật Khẩu</a>
+                </div>
+                <div style="margin-top: 60px ;">
+                    <button ng-click="setType('ban-hang')" type="submit" class="btn btn-lg btn-block login-btn" style="width: 100%;background: #00a8f3 !important;" >
+                        <img src="img/icon/icon_bh.png" />
+                             Bán Hàng
+                    </button>
+
+                    <div class="clr"></div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

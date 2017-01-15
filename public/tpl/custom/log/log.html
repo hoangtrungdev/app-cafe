@@ -1,0 +1,59 @@
+<div data-ng-controller="LogCtrl">
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div class="m-bc">
+                <div class="m-bc-title">Log Hoạt Động <span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+                <div style="padding: 20px 10px 5px">
+                    <div class="streamline b-l m-b">
+                        <div  data-ng-repeat="log in logs | orderBy:'-time'  | startFrom:(currentPage_mobile-1)*15 | limitTo : 15 " class="sl-item b-{{log.type}} b-l" >
+                            <div class="m-l">
+                                <div class="text-muted">{{ get_hour(log.time,date) }}</div>
+                                <p><a class="text-info">{{log.user}}</a> {{log.active}}.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < logs.length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < logs.length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img src="img/icon/mobile-menu.png" data-ng-show="!mobile_menu" >
+                <img src="img/icon/mobile-menu-2.png" data-ng-show="mobile_menu" >
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <div class="panel panel-default" >
+            <div class="panel-heading-mod">
+                Lịch Sử Hoạt Động
+            </div>
+            <div class="padder-md" style="padding: 10px" >
+                <div class="page-in" >
+
+                    <div class="streamline b-l m-b">
+                        <div  data-ng-repeat="log in logs | orderBy:'-time'  | startFrom:(currentPage-1)*pageSize | limitTo : pageSize " class="sl-item b-{{log.type}} b-l" >
+                            <div class="m-l">
+                                <div class="text-muted">{{ get_hour(log.time,date) }}</div>
+                                <p><a class="text-info">{{log.user}}</a> {{log.active}}.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- / streamline -->
+                </div>
+            </div>
+
+            <div class="text-center row" style="font-size: 12px">
+                <pagination max-size="10" boundary-links="true"   next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối"
+                            rotate="false"  total-items="( logs | orderBy:'-time').length/pageSize*10" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+            </div>
+        </div>
+    </div>
+</div>
+
+

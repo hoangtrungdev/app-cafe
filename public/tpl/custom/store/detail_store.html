@@ -1,0 +1,426 @@
+<div  data-ng-controller="StoreDetCtrl">
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <!--<a  ui-sref="app.store" style="position: fixed ; z-index: 10 ; top:15px ; left: 10px; color: #0d8dc9 ; font-size: 11px ; text-decoration: underline">-->
+    <!--Quay Lại-->
+    <!--</a>-->
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div class="m-bc">
+                <div class="m-bc-title">Đợt Nhập Hàng {{store.name}}
+                    <span class="pull-right"> Trang {{currentPage_mobile }}</span>
+                </div>
+                <table class="table-mod table m-b-none table-hover " data-ng-if="(services_store | filter:{ store_id : store._id} : true ).length > 0">
+                    <thead>
+                    <tr>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Giá Mua</th>
+                    </tr>
+                    </thead>
+                    <tbody >
+                    <tr data-ng-repeat="service in (services_store| datefilter:start:end | filter:{store_id : store._id , name : filter_name  ,code : filter_code  , category : filter_cate } | filter:{supplier:filter_sup } : true
+                        | orderBy:'-create'| startFrom:(currentPage_mobile-1)*15 | limitTo : 15  )">
+                        <td>{{ service.code }}</td>
+                        <td>{{ service.price | number : 0 }}</td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+                <table class="check-table" data-ng-if="(services_store | filter:{ store_id : store._id} : true ).length == 0">
+                    <tr>
+                        <td colspan="2" style="text-align: center ; font-size: 12px">Đợt Hàng Chưa Nhập Sản Phẩm</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < (services_store| datefilter:start:end | filter:{store_id : store._id , name : filter_name  ,code : filter_code  , category : filter_cate } | filter:{supplier:filter_sup } : true).length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < (services_store| datefilter:start:end | filter:{store_id : store._id , name : filter_name  ,code : filter_code  , category : filter_cate } | filter:{supplier:filter_sup } : true).length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <div class="panel panel-default panel-min">
+            <div class="panel-heading-mod">
+                <div class="pull-left span-heading-mod" data-ng-click="exportData()">
+                    Đợt Nhập Hàng {{store.name}}
+                    -
+                    Tổng Cộng  :  {{services_store  | filter:{store_id : store._id }| sumValueService   | number : 0 }}
+
+                </div>
+                <a class="pull-right btn btn-ser-search" data-ng-click="search_show=!search_show ; list_show=''">
+                    <img src="img/icon/ser-search.png">
+                    <img src="img/icon/down.png">
+                </a>
+                <a class="pull-right btn btn-ser-search" data-ng-click="list_show=!list_show ; search_show='' ">
+                    <img src="img/icon/ser-list.png">
+                    <img src="img/icon/down.png">
+                </a>
+                <a class="pull-right btn btn-ser-search" data-ng-click="exportData()">
+                    <img src="img/icon/icon-file.png">
+                    Xuất Excel
+                </a>
+                <a  data-ng-if="store" class="pull-right btn btn-ser-add" ui-sref="app.detail_store_add({id : store._id})">
+                    <img src="img/icon/ser-add.png">
+                    Thêm Sản Phẩm
+                </a>
+                <a class="pull-right btn btn-ser-add" ui-sref="app.store">
+                    <img src="img/icon/icon-nap.png">
+                    Danh Sách Đợt Nhập Hàng
+                </a>
+
+                <div class="clr"></div>
+            </div>
+            <div id="ser-list" data-ng-show="list_show">
+                <div class="list-check">Mã Sản Phẩm
+                    <div class="pull-right">
+                        <input type="checkbox" ng-model="show_code" id="show_code" class="css-checkbox" />
+                        <label for="show_code" class="css-label"></label>
+                    </div>
+                </div>
+                <div class="list-check">Tên Sản Phẩm
+                    <div class="pull-right">
+                        <input type="checkbox" ng-model="show_name" id="show_name" class="css-checkbox" />
+                        <label for="show_name" class="css-label"></label>
+                    </div>
+                </div>
+                <div class="list-check">Nhà Cung Cấp
+                    <div class="pull-right">
+                        <input type="checkbox" ng-model="show_category" id="show_category" class="css-checkbox" />
+                        <label for="show_category" class="css-label"></label>
+                    </div>
+                </div>
+                <div class="list-check">Giá
+                    <div class="pull-right">
+                        <input type="checkbox" ng-model="show_price" id="show_price" class="css-checkbox" />
+                        <label for="show_price" class="css-label"></label>
+                    </div>
+                </div>
+                <div class="list-check">Số Lượng
+                    <div class="pull-right">
+                        <input type="checkbox" ng-model="show_store" id="show_store" class="css-checkbox" />
+                        <label for="show_store" class="css-label"></label>
+                    </div>
+                </div>
+
+                <div class="list-check">Ngày Tạo
+                    <div class="pull-right">
+                        <input type="checkbox" ng-model="show_date" id="show_date" class="css-checkbox" />
+                        <label for="show_date" class="css-label"></label>
+                    </div>
+                </div>
+                <div class="list-check">
+                    <a class="btn ser-list-hide btn-mod-sm" data-ng-click="list_show=''">
+                        <img src="img/icon/list-hide.png"/>
+                        Ẩn Đi
+                    </a>
+                </div>
+            </div>
+            <div id="ser-search" data-ng-show="search_show">
+                <div class="ser-search-div">
+                    <label class="checkout-label" > Tên Sản Phẩm </label>
+                    <input class="checkout-input" ng-model="filter_name" type="text" placeholder="Tên Sản Phẩm" />
+                    <div class="clr"></div>
+                </div>
+                <div class="ser-search-div">
+                    <label class="checkout-label" > Mã Sản Phẩm </label>
+                    <input class="checkout-input" ng-model="filter_code" type="text" placeholder="Mã Sản Phẩm" />
+                    <div class="clr"></div>
+                </div>
+                <div class="ser-search-div">
+                    <label class="checkout-label" >Nhà C.Cấp </label>
+                    <ui-select class="checkout-input "  ng-model="supplier" theme="select2" on-select="set_scope('filter_sup',supplier.code)">
+                        <ui-select-match allow-clear="true" placeholder="Chọn Nhà Cung Cấp ">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="supplier in suppliers | propsFilter: {name: $select.search}">
+                            <div ng-bind-html="supplier.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                    <div class="clr"></div>
+
+                </div>
+                <div class="ser-search-div" style="position: relative">
+                    <label class="checkout-label" >Từ Ngày </label>
+                    <input type="text" placeholder="Từ Ngày" class="checkout-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="opened1" datepicker-options="dateOptions" close-text="Close" />
+                    <img class="c-date" src="img/icon/date.png" />
+                    <div class="clr"></div>
+                </div>
+                <div class="ser-search-div" style=" border-bottom: 1px solid #187CAB; position: relative">
+                    <label class="checkout-label" >Đến Ngày </label>
+                    <input type="text" placeholder="Đến Ngày" class="checkout-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="opened2" datepicker-options="dateOptions" close-text="Close" />
+                    <img class="c-date" src="img/icon/date.png" />
+                    <div class="clr"></div>
+
+                </div>
+                <div style="border-top: 1px solid #21A0DC; padding: 10px ; text-align: right">
+                    <a class="btn ser-list-hide btn-mod-sm" data-ng-click="search_show=''">
+                        <img src="img/icon/list-hide.png"/>
+                        Ẩn Đi
+                    </a>
+                </div>
+
+            </div>
+            <div class="store-nhap" data-ng-show="now_sp > 0">
+                <div class="s-a-div">
+                    <div style="width: 675px ; margin-left: 19px">
+                        <div>
+                            <span style="color: green">Duyệt thành công {{now_sp}} sản phẩm . </span>
+                            <span style="color: green">Cập nhật thành công {{success}} sản phẩm ,</span>
+                            <span style="color: red">lỗi {{error}} sản phẩm  </span>
+                        </div>
+                        <progressbar value="now_per" class="progress-xs m-t-sm bg-white" animate="true" type="info"></progressbar>
+                        <div class="n-ct"><a data-ng-click="show_ct = !show_ct">Chi Tiết</a></div>
+                        <div class="d-ct" data-ng-show="show_ct">
+                            <div data-ng-repeat="copy in arr_copy">
+                                <div  data-ng-if="copy.type=='error'"><span style="color: red"> Thất Bại : </span>Mã Sản Phẩm {{copy.detail.code}} Đã Tồn Tại , Vui Lòng Kiểm Tra Tại
+                                    <a ui-sref="app.service({code : copy.detail._id})">Trang Sản Phẩm </a> !!!!!</div>
+                                <div data-ng-if="copy.type=='success'"><span style="color: green"> Thành Công : </span>Cập Nhật Sản Phẩm {{copy.detail.code}} Thành Công  !!!!!</div>
+                                <div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div>
+                <table class="table-mod table table-hover m-b-none">
+                    <thead>
+                    <tr class="tr-head">
+                        <th >STT</th>
+                        <th>Đợt Nhập</th>
+                        <th data-ng-show="show_code">Mã Sản Phẩm</th>
+                        <th data-ng-show="show_name">Tên Sản Phẩm</th>
+                        <th data-ng-show="show_category">Nhà Cung Cấp</th>
+                        <th data-ng-show="show_price">Giá</th>
+                        <th data-ng-show="show_store">Số Lượng</th>
+                        <th>ĐVT</th>
+                        <th data-ng-show="show_extra">Chi Phí Thêm</th>
+                        <th >Tổng Tiền</th>
+                        <th data-ng-show="show_date">Ngày Tạo</th>
+                        <!--<th>Tình Trạng</th>-->
+                        <th style="min-width: 120px ; text-align: center">Tác Vụ</th>
+                        <th>
+                            <a>
+                            <img src="img/icon/icon-trash.png" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Các Mục Đã Chọn ?"
+                                 ng-bootbox-confirm-action="del_all()" ></i>
+                        </a>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody ng-repeat="service in (services_store| datefilter:start:end | filter:{store_id : store._id , name : filter_name  ,code : filter_code  , category : filter_cate} | filter:{supplier:filter_sup } : true
+                        | orderBy:'-create'| startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )">
+                    <tr ng-class="edit_service_id == service._id ?'tr-now':''"  class="color">
+                        <td  data-ng-click="edit_service(service._id)">{{ $index + 1 + pageSize*(currentPage-1)}}</td>
+                        <td  data-ng-click="edit_service(service._id)">{{ service.store_name }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_code">{{ service.code }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_name">{{ service.name }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_category">{{ service.supplier.name?service.supplier.name:'Đang Cập Nhật' }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_price">{{ service.price  | number : 0}}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_store">{{ service.qty | number : 0 }}</td>
+                        <td data-ng-click="edit_service(service._id)" >{{ service.dvt }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_extra">{{ service.price_extra | number : 0 }}</td>
+                        <td  data-ng-click="edit_service(service._id)">{{service.price*service.qty + service.price_extra | number : 0}}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_date">{{service.create | date:'dd-MM-yyyy'}}</td>
+                        <td class="text-center" style="width: 50px">
+
+                            <a>
+                                <img src="img/icon/icon-trash.png" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                     ng-bootbox-confirm-action="del_ser(service)" ></i>
+                            </a>
+                        </td>
+                        <td class="td-check" style="width: 50px" >
+                            <label class="i-checks i-checks-sm">
+                                <input type="checkbox" ng-model="service.check" ><i></i>
+                            </label>
+                        </td>
+
+                    </tr>
+                    <tr class="tr-edit" data-ng-if="edit_service_id == service._id">
+                        <td colspan="15">
+                            <div class="service-div">
+                                <div class="ser-head">
+                                    <span class="ser-head-title">Thông Tin Sản Phẩm</span>
+                                    <div class="pull-right bill-right">
+                                        <span> Tổng Tiền :</span>
+                                        <span class="ser-head-store"> {{service.price*service.qty + service.price_extra | number : 0}} </span>
+                                    </div>
+                                    <div class="clr"></div>
+                                </div>
+                                <div class="ser-info">
+                                    <div class="ser-img">
+                                        <img data-ng-if="service.img" ng-src="img/uploads/{{service.img}}" alt="{{ service.name }}" />
+                                        <img data-ng-if="!service.img" src="img/default/no_photo.jpg" alt="{{ service.name }}"  />
+                                    </div>
+
+                                    <table class="ser-table">
+                                        <tr>
+                                            <td class="ser-tab-title"> Mã Sản Phẩm</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.code}}</span>
+                                                <input data-ng-show="edit_ser"  ng-model="service.code" type="text" id="code{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('code',service._id)" />
+                                            </td>
+                                            <td class="ser-tab-title">Giá Mua</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.price | number : 0}}</span>
+                                                <input data-ng-show="edit_ser" ng-model="service.price"  number-mask="" ng-model="service.price" type="text" id="price{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('price',service._id)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ser-tab-title">Tên Sản Phẩm</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.name | limitTo: 25 }}</span>
+                                                <input data-ng-show="edit_ser"  ng-model="service.name" type="text" id="name{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('name',service._id)" />
+                                            </td>
+                                            <td class="ser-tab-title">Số Lượng</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.qty | number : 0}}</span>
+                                                <input data-ng-show="edit_ser"  ng-model="service.qty"   number-mask="" ng-model="service.qty" type="text" id="qty{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('qty',service._id)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ser-tab-title">Ngày Nhập</td>
+                                            <td> <span  class="ser-tab-span"> {{service.create | date:'dd-MM-yyyy'}}</span></td>
+
+                                            <td class="ser-tab-title">Chi Phí Thêm</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.price_extra | number : 0}}</span>
+                                                <input data-ng-show="edit_ser"  ng-model="service.price_extra"   number-mask="" ng-model="service.price_extra" type="text" id="price_extra{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('price_extra',service._id)" />
+
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="ser-tab-title">Đơn Vị Tính</td>
+                                            <td colspan="3">
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.dvt}}</span>
+                                                <input data-ng-show="edit_ser"  ng-model="service.dvt"  ng-model="service.dvt" type="text" id="dvt{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('dvt',service._id)" />
+
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="ser-tab-title">Nhà Cung Cấp</td>
+                                            <td  colspan="3">
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.supplier.name}}</span>
+                                                <ui-select data-ng-show="edit_ser" style="width: 100%"  on-select="update_mod_ser('supplier',service._id,service.supplier)" ng-model="service.supplier" theme="select2">
+                                                    <ui-select-match placeholder="Nhà CC">{{$select.selected.name}}</ui-select-match>
+                                                    <ui-select-choices repeat="supplier in suppliers | propsFilter: {name: $select.search , code: $select.search}" >
+                                                        <span  ng-bind-html="supplier.name | highlight: $select.search"> </span>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </td>
+                                        </tr>
+
+                                    </table>
+                                    <div class="clr"></div>
+
+                                    <div class="fileUpload btn btn-mod-upload">
+                                            <span>
+                                                <img src="img/icon/upload.png" />
+                                                Upload ảnh
+                                            </span>
+                                        <input class="upload" type="file" ng-model="img"  accept="image/*" base-sixty-four-input data-ng-change="upload_img(service._id , img )">
+                                    </div>
+                                    <a data-ng-show="!edit_ser" class="btn btn-ser-edit" data-ng-click="edit_ser = true">
+                                        <img src="img/icon/ser-edit.png" />
+                                        Chỉnh Sửa
+                                    </a>
+                                    <a data-ng-show="edit_ser" class="btn btn-ser-edit" data-ng-click="update_emit();edit_ser = false">
+                                        <img src="img/icon/ser-save.png" />
+                                        Lưu Lại
+                                    </a>
+                                    <div class="ser-sub">
+                                        * Giá Vốn = Giá Mua + Chi Phí &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                        ** Cập nhật lần cuối vào lúc
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                            <div class="ser-div-right tablet-hide">
+                                <div class="ser-head">
+                                    <span class="ser-head-title">Lịch Sử Nhập Hàng</span>
+                                </div>
+                                <table class="table-mod table table-hover m-b-none">
+                                    <thead>
+                                    <tr class="tr-head">
+                                        <th >STT</th>
+                                        <th>Đợt Nhập Hàng</th>
+                                        <th>Giá Mua</th>
+                                        <th>Số Lượng</th>
+                                        <th>Chi Phí</th>
+                                        <th>Ngày Nhập</th>
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="ser in (services_store | filter:{code : service.code} )">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td><a  ui-sref="app.detail_store({id : ser.store_id})" class="color-blue">{{ ser.store_name }}</a></td>
+                                        <td>{{ ser.price | number : 0}}</td>
+                                        <td>{{ ser.qty | number : 0 }}</td>
+                                        <td>{{ ser.price_extra | number : 0 }}</td>
+                                        <td>{{service.create | date:'dd-MM-yyyy'}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </td>
+
+                    </tr>
+                    </tbody>
+
+                </table>
+                <div class="text-center row" style="font-size: 12px" >
+                    <pagination max-size="10"  boundary-links="true" rotate="false"
+                                total-items="(services_store| datefilter:start:end | filter:{store_id : store._id ,name : filter_name  ,code : filter_code  , category : filter_cate } | filter:{supplier:filter_sup } : true  ).length/pageSize*10" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                </div>
+                <table id="extable" style="display: none" class="table-mod table m-b-none">
+                    <thead>
+                    <tr>
+                        <th >STT</th>
+                        <th>Đợt Nhập</th>
+                        <th>Mã Sản Phẩm</th>
+                        <th>Tên Sản Phẩm</th>
+                        <th>Nhà Cung Cấp</th>
+                        <th>Giá</th>
+                        <th>Số Lượng</th>
+                        <th>ĐVT</th>
+                        <th>Chi Phí Thêm</th>
+                        <th>Tổng Tiền</th>
+                        <th>Ngày Tạo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="service in (services_store| datefilter:start:end | filter:{store_id : store._id , name : filter_name  ,code : filter_code  , category : filter_cate} | filter:{supplier:filter_sup } : true
+                        | orderBy:'-create' )">
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ service.store_name }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_code">{{ service.code }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_name">{{ service.name }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_category">{{ service.supplier.name?service.supplier.name:'Đang Cập Nhật' }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_price">{{ service.price  | number : 0}}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_store">{{ service.qty | number : 0 }}</td>
+                        <td data-ng-click="edit_service(service._id)" >{{ service.dvt }}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_extra">{{ service.price_extra | number : 0 }}</td>
+                        <td  data-ng-click="edit_service(service._id)">{{service.price*service.qty + service.price_extra | number : 0}}</td>
+                        <td data-ng-click="edit_service(service._id)" data-ng-show="show_date">{{service.create | date:'dd-MM-yyyy'}}</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,115 @@
+<div  data-ng-controller="ReturnCtrl">
+    <input type="hidden" id="id-payment" value="{{data_detail.name}}-{{data_detail.time_out | date:'yyyyMMdd'}}-{{data_detail.time_out | date:'HHmmss'}}"/>
+    <div class="panel panel-default panel-default-mod">
+        <div class="panel-heading bold">
+            Thông Tin Khách Hàng
+        </div>
+        <table class="table table-striped m-b-none">
+            <tbody>
+            <tr>
+                <td class='bold'>Tên Khách Hàng</td>
+                <td>{{ data_detail.customer.name }}</td>
+                <td class='bold'>Địa Chỉ</td>
+                <td>{{data_detail.customer.address}}</td>
+            </tr>
+            <tr>
+                <td class='bold'>Email</td>
+                <td>{{data_detail.customer.email}}</td>
+                <td class='bold'>Điện Thoại</td>
+                <td>{{data_detail.customer.phone }}</td>
+            </tr>
+            <tr>
+                <td class='bold'>Mã Giảm Giá Sử Dụng</td>
+                <td colspan="3"> {{data_detail.coupon?data_detail.coupon :"Không Sử Dụng "}}</td>
+            </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+    <div class="panel panel-default panel-default-mod">
+        <div class="panel-heading bold">
+            Thông Tin Chi Tiết Phiếu Bán Hàng
+        </div>
+        <table class="table-mod table ">
+            <thead>
+            <tr>
+                <th>STT</th>
+                <th>Sản Phẩm</th>
+                <th>Thuộc Tính</th>
+                <th>Đơn Giá</th>
+                <th>Số Lượng</th>
+                <th>Thành Tiền</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="service in data_detail.services">
+                <td class="text-center" style="width: 50px;">{{ $index + 1 }}</td>
+                <td>{{service.name}}</td>
+
+                <td data-ng-hide="service.nc">Mặc Định</td>
+                <td data-ng-show="service.nc">{{service.nc.nc_name}}</td>
+
+                <td data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                <td data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                <td>{{service.qty}}</td>
+
+                <td data-ng-hide="service.nc">{{service.price *service.qty| number:0}}</td>
+                <td data-ng-show="service.nc">{{service.nc.nc_price * service.qty | number:0}}</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-right bold">Tổng Cộng</td>
+                <td>{{data_detail.total | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-right bold">Giảm Giá</td>
+                <td>{{data_detail.reduce | number : 0}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="btn-mod-full pull-right" data-ng-click="printDiv('print-div')">IN PHIẾU</a>
+    <div class="clr"></div>
+
+    <div id="print-div" style="display: none">
+        <table>
+            <tr style="margin-bottom: 0px">
+                <th>STT</th>
+                <th>Sản Phẩm</th>
+                <th>SL</th>
+                <th>Đơn Giá</th>
+                <th>Thành Tiền</th>
+            </tr>
+            <tr class="line-tab-out">
+                <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+            </tr>
+            <tr ng-repeat="service in data_detail.services">
+                <td>{{ $index + 1 }}</td>
+                <td>{{service.name}}</td>
+                <td>{{service.qty}}</td>
+                <td>{{service.price| number:0}}</td>
+                <td>{{service.price *service.qty| number:0}}</td>
+            </tr>
+            <tr class="line-tab-out">
+                <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="print-text-right">Tổng Cộng</td>
+                <td>{{data_detail.total | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="print-text-right">Giảm Giá</td>
+                <td>{{data_detail.reduce | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="print-text-right">Tiền Khách Trả</td>
+                <td>{{data_detail.paid | number : 0}}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="print-text-right">Tiền Trả Lại</td>
+                <td>{{ data_detail.paid - data_detail.total + 1*data_detail.reduce  | number : 0}}</td>
+            </tr>
+        </table>
+    </div>
+</div>

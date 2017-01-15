@@ -1,0 +1,418 @@
+<div id="map"  data-ng-controller="BookRoomCtrl">
+<!-- toaster directive -->
+<toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+<!-- / toaster directive -->
+<div class=" wrapper-md page-title-out" >
+    <span class="page-title">Thanh Toán</span>
+        <div class="pull-right">
+            <input type="hidden" id="date_now" ng-model="date"/>
+            <a ui-sref="app.map" class="btn-mod-full blue">
+                <img src="img/icon/btn-x.png" />
+                Hủy Bỏ
+            </a>
+            <a class="btn-mod-full" data-ng-click="check_out()" >
+                <img src="img/icon/btn-mon.png" />
+                Thanh Toán
+            </a>
+    </div>
+
+</div>
+<div class="page-in" >
+<div class="pad-left" >
+<div class="panel-body">
+<form name="bookForm" class="form-validation form-horizontal" >
+<tabset  class="tab-container">
+<tab ng-repeat="room in array_room_detail" heading="Phòng {{room.name}} {{room.vip == true ?'(VIP)' : '' }} ">
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Thông Tin Dịch Vụ Phòng
+    </div>
+    <table class="table table-striped m-b-none">
+        <tbody>
+        <tr>
+            <td class='bold'>Tên Phòng</td>
+            <td>{{ room.name }}</td>
+            <td class='bold'>Loại Phòng</td>
+            <td>{{room.room_type.name}}</td>
+        </tr>
+        <tr>
+            <td class='bold'>Giờ Vào</td>
+            <td>{{room.time | date:'h:m:s a  dd-MM-yyyy'}}</td>
+            <td class='bold'>Giờ Ra</td>
+            <td>{{room.time_out | date:'h:m:s a  dd-MM-yyyy'}}</td>
+        </tr>
+        <tr>
+            <td class='bold'>Thuê Theo</td>
+            <td >{{room.type_book == 'hour' ? 'Theo Giờ' : room.type_book == 'day' ? 'Theo Ngày' : 'Qua Đêm'}}</td>
+            <td class='bold'>Số Giờ</td>
+            <td >{{get_hour(room.time,room.time_out)}}</td>
+        </tr>
+        <tr>
+            <td class="bold"> Xuất Hóa Đơn VAT</td>
+            <td >
+                <label class="i-switch m-t-xs m-r">
+                    <input type="checkbox" ng-model="room.vat" >
+                    <i></i>
+                </label>
+            </td>
+            <td class="bold"> Đối Tác</td>
+            <td >
+                {{ room.supplier ? room.supplier.name : "Không Có" }}
+            </td>
+        </tr>
+        <tr data-ng-show="room.vat">
+            <td class="bold" style="padding-top: 20px"> Chọn Công Ty</td>
+            <td colspan="3">
+                <div class="row">
+                    <ui-select  class="col-xs-8" ng-model="room.company" on-select="company_choose(room.company,room.url)" theme="bootstrap" >
+                        <ui-select-match  allow-clear="true"  placeholder="Chọn Công Ty ...">{{$select.selected.company}}</ui-select-match>
+                        <ui-select-choices repeat="company in companys | propsFilter: {company: $select.search}">
+                            <div ng-bind-html="company.company | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                    <a class="btn-mod-full" data-ng-click="add_company(room)" >
+                        Thêm Công Ty Mới
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <tr data-ng-show="room.vat&&room.company">
+            <td class='bold'>Địa Chỉ ( VAT )</td>
+            <td >{{room.company.vat}}</td>
+            <td class='bold'>MST</td>
+            <td >{{room.company.mst}}</td>
+
+
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Chi Tiết Dịch Vụ Thuê Phòng
+    </div>
+    <table class="table table-striped m-b-none">
+        <thead>
+        <tr>
+            <th style="width:5%">STT </th>
+            <th style="width:10%">Ngày </th>
+            <th style="width:20%">Ghi Chú </th>
+            <th style="width:20%">Thời Gian </th>
+            <th style="width:20%">Tiền Thực Tế</th>
+            <th style="width:10%" >Tiền Thanh Toán</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="date_detail in dateArray(room.time,room.time_out) track by $index"  >
+            <td>{{ $index + 1 }} </td>
+            <td>{{date_detail | date:'dd-MM-yyyy'}}</td>
+            <td>{{get_type_day(date_detail)}}</td>
+            <td>{{get_hour_by_day(date_detail,room.time_out)}}</td>
+            <td>{{price_by_day(date_detail,room.time,room.time_out,room.type_book,room.room_type,'real') | number:0}}</td>
+            <td >{{price_by_day(date_detail,room.time,room.time_out,room.type_book,room.room_type,'payment') | number:0}}</td>
+
+        </tr>
+        <tr>
+            <td colspan="5" class="text-right bold">Tổng Cộng</td>
+            <td>{{ total_price(room.time,room.time_out,room.type_book,room.room_type,'payment') | number : 0 }}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="text-right bold">Giảm Giá</td>
+            <td>{{reduce_price(room.coupon.type,room.coupon.value,total_price(room.time,room.time_out,room.type_book,room.room_type,'payment')) |  number : 0}}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="text-right bold">Còn Lại</td>
+            <td>{{total_price(room.time,room.time_out,room.type_book,room.room_type,'payment') - reduce_price(room.coupon.type,room.coupon.value,total_price(room.time,room.time_out,room.type_book,room.room_type,'payment')) |  number : 0}}</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="row" style="padding: 10px">
+        <div class="col-xs-8">
+            <div class="input-group m-b">
+                <span class="input-group-addon">Mã Giảm Giá </span>
+                        <span class="form-control">
+                            <span data-ng-show="!room.coupon">Chưa Sử Dụng Mã Giảm Giá</span>
+                            <span data-ng-show="room.coupon">Bạn đã sử dụng mã giảm giá {{room.coupon.code}} giảm {{ room.coupon.type == 'percent' ? room.coupon.value + " %" : room.coupon.value }} </span>
+                            <a data-ng-show="room.coupon" class="pull-right" ng-bootbox-confirm="Bạn Muốn Xóa Mã Giảm Giá Này ?" ng-bootbox-confirm-action="del_coupon(room.url)" >
+                                <i class="fa fa-times fa-fw ng-isolate-scope"></i>
+                            </a>
+                        </span>
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <div class="input-group">
+                <input class="form-control" ng-model="coupon_code" type="text" name="coupon" placeholder="Nhập Mã Giảm Giá">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-info blue" data-ng-click="check_coupon(coupon_code,room.url)" type="button">Xác Nhận</button>
+                                </span>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Dịch Vụ Thêm
+    </div>
+     <span class="add-mod-right">
+         <a data-ng-click="add_service(room)"> <span class="icon icon-add-blue"></span></a>
+     </span>
+    <div class="panel-body">
+        <div  ng-hide="room.services.length != 0 ">Không có dịch vụ thêm</div>
+        <table class="table m-b-none table-mod"  ng-hide="room.services.length == 0 ">
+            <thead>
+            <tr>
+            <th style="width:5%">STT </th>
+            <th style="width:30%">Tên Dịch Vụ</th>
+            <th style="width:15%">Đơn Giá</th>
+            <th style="width:15%">ĐVT</th>
+            <th style="width:10%">Số Lượng</th>
+            <th style="width:10%">Thành Tiền</th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="service in room.services" >
+                <td>{{ $index + 1 }}</td>
+                <td>
+                    <ui-select on-select="service_choose(service,room ,service.s_id)" ng-model="service" theme="bootstrap" >
+                        <ui-select-match placeholder="Tên Dịch Vụ">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="service_a in services | propsFilter: {name: $select.search}" >
+                            <span ng-init="service_a.s_id = service.s_id" ng-bind-html="service_a.name | highlight: $select.search"> </span> - {{service_a.price}}
+                        </ui-select-choices>
+                    </ui-select>
+                </td>
+                <td>{{service.price| number:0}}</td>
+                <td>{{service.dvt }}</td>
+                <td>
+                    <input ng-model="service.qty"  type="number" min="0" step="1" id="qty{{service_key}}" class="mod-input" ng-change="edit_service(service,room)" />
+                </td>
+                <td>
+                    {{service.price*service.qty | number:0}}
+                                                <span class="pull-right">
+                                                    <a><i ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                                          ng-bootbox-confirm-action="del_service(room,service.s_id)"
+                                                          class="fa fa-times fa-fw"></i>
+                                                    </a>
+                                                </span>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Giảm Giá / Phụ Thu
+    </div>
+      <span class="add-mod-right"><a data-ng-click="add_custom(room)"><span class="icon icon-add-blue"></span></a></span>
+    <div class="panel-body">
+        <div  ng-hide="room.customs.length != 0 ">Không có giảm giá hoặc phụ thu</div>
+        <table class="table m-b-none table-mod"  ng-hide="room.customs.length == 0 ">
+            <thead>
+            <tr>
+            <th style="width: 10%">STT </th>
+            <th>Tên Dịch Vụ</th>
+            <th>Giá Trị</th>
+            <th></th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="custom in room.customs" >
+                <td>{{ $index + 1 }}</td>
+                <td>
+                    <input ng-model="custom.custom_text" value="{{custom.custom_text}}" type="text"  id="custom_text{{custom_key}}" class="mod-input" ng-change="edit_custom(custom,room)" />
+                </td>
+                <td>
+                    <input number-mask="" ng-model="custom.custom_value" value="{{custom.custom_value}}" type="text" id="custom_value{{custom_key}}" class="mod-input" ng-change="edit_custom(custom,room)" />
+                </td>
+                <td>
+                                            <span class="pull-right">
+                                                    <a><i ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                                          ng-bootbox-confirm-action="del_custom(room, custom._id)"
+                                                          class="fa fa-times fa-fw"></i>
+                                                    </a>
+                                                </span>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading-mod">
+        Khách Hàng Đi Cùng
+    </div>
+    <span class="add-mod-right">
+       <a data-ng-click="add_together(room)"><span class="icon icon-add-blue"></span> </a>
+    </span>
+    <div class="panel-body">
+        <div  ng-hide="room.togethers.length != 0 ">Không có khách hàng đi cùng</div>
+        <table class="table m-b-none table-mod"  ng-hide="room.togethers.length == 0 ">
+            <thead>
+            <tr>
+                <th style="width: 10%">STT </th>
+                <th>Họ Và Tên</th>
+                <th>CMND</th>
+                <th></th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="together in room.togethers" >
+                <td>{{ $index + 1 }}</td>
+                <td>
+                    <input ng-model="together.together_text" value="{{together.together_text}}" type="text"  id="together_text{{together_key}}" class="mod-input" ng-change="edit_together(together,room)" />
+                </td>
+                <td>
+                    <input ng-model="together.together_value" value="{{together.together_value}}" type="text" id="together_value{{together_key}}" class="mod-input" ng-change="edit_together(together,room)" />
+                </td>
+                <td>
+                    <span class="pull-right">
+                         <a><i ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                               ng-bootbox-confirm-action="del_together(room, together._id)"
+                               class="fa fa-times fa-fw"></i>
+                         </a>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+    </div>
+</div>
+
+</tab>
+</tabset>
+
+<div id="print" style="display: none">
+    <div id="print-header">
+        <div id="print-logo">
+            <img src="img/logo.png" >
+            <div id="print-logo-info">
+                <p id="print-name">Quản Lý Bán Hàng</p>
+                <p>158A Võ Thị Sáu ,P8,Quận 3,TP HCM</p>
+                <p>8.38202923</p>
+            </div>
+            <div style="clear: both"></div>
+        </div>
+        <div id="print-title">
+            <p id="print-title-name">PHIẾU THANH TOÁN</p>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+    <div id="print-info" ng-repeat="room in array_room_detail">
+        <div style="margin-top: 20px ; margin-bottom: 5px ; text-align: center ; text-transform: uppercase"> Phòng {{ room.name }} </div>
+        <h2>THÔNG TIN PHÒNG , KHÁCH HÀNG</h2>
+        <table id="print-customer-info">
+            <tr>
+                <td class="title">Mã Phòng</td>
+                <td class="title">{{ room.name }} ( {{room.room_type.name}} )</td>
+                <td class="title">Check in</td>
+                <td>{{room.time | date:'h:m:s a  dd-MM-yyyy'}}</td>
+            </tr>
+            <tr>
+                <td class="title">Tên khách hàng</td>
+                <td>{{room.customer.name}}</td>
+
+                <td class="title">Check out</td>
+                <td>{{room.time_out | date:'h:m:s a  dd-MM-yyyy'}}</td>
+            </tr>
+            <tr>
+                <td class="title">Quốc tịch</td>
+                <td>{{room.customer.country?room.customer.country:"Không có thông tin"}}</td>
+                <td class="title">Thời gian</td>
+                <td>{{get_hour(room.time,room.time_out)}}</td>
+            </tr>
+            <tr>
+                <td class="title">Xuất Hóa Đơn</td>
+                <td>{{room.vat==false?"Không":"Có"}}</td>
+                <td class="title">Tiền Phòng</td>
+                <td class="title">{{ total_price(room.time,room.time_out,room.type_book,room.room_type,'payment') | number : 0 }} VND</td>
+            </tr>
+
+        </table>
+        <h2 data-ng-show="room.vat">THÔNG TIN XUẤT ĐƠN</h2>
+        <table data-ng-show="room.vat">
+            <tr>
+                <td class="title">Tên đơn vị</td>
+                <td class="title">Mã Số Thuế</td>
+                <td class="title">Địa chỉ</td>
+            </tr>
+            <tr data-ng-show="room.company">
+                <td>{{room.company.company?room.company.company:"Không có thông tin"}}</td>
+                <td>{{room.company.mst?room.company.mst:"Không có thông tin"}}</td>
+                <td>{{room.company.vat?room.company.vat:"Không có thông tin"}}</td>
+            </tr>
+            <tr data-ng-show="!room.company">
+                <td>{{room.customer.company?room.customer.company:"Không có thông tin"}}</td>
+                <td>{{room.customer.mst?room.customer.mst:"Không có thông tin"}}</td>
+                <td>{{room.customer.vat?room.customer.vat:"Không có thông tin"}}</td>
+            </tr>
+
+        </table>
+        <h2 data-ng-if="room.services||room.customs" >CHI TIẾT DỊCH VỤ</h2>
+        <table data-ng-if="room.services||room.customs" id="print-service-info">
+            <tr data-ng-if="room.services">
+                <td class="title">STT</td>
+                <td class="title">Tên dịch vụ</td>
+                <td class="title">Số lượng</td>
+                <td class="title">Đơn giá</td>
+                <td class="title">Thành tiền</td>
+            </tr>
+            <tr data-ng-if="room.services" ng-repeat="(service_key,service) in room.services"  >
+                <td>{{ $index + 1 }} </td>
+                <td>{{service.name}}</td>
+                <td>{{service.qty}}</td>
+                <td>{{service.price | number:0}} VND</td>
+                <td>{{service.price*service.qty | number:0 }} VND</td>
+            </tr>
+            <tr data-ng-if="room.services">
+                <td colspan="4" class="text-right title">Tổng Cộng</td>
+                <td class="title">{{ sum_service(room.services) | number:0 }} VND</td>
+            </tr>
+            <tr data-ng-if="room.customs">
+                <td colspan="4" class="text-right title">Phụ thu / Giảm giá</td>
+                <td class="title">{{ sum_custom(room.customs) | number:0 }} VND</td>
+            </tr>
+        </table>
+        <h2>HÌNH THỨC THANH TOÁN</h2>
+        <table id="print-payment-info">
+            <tr>
+                <td class="title">Hình thức thanh toán</td>
+                <td>{{(room.payment&&room.payment!='')?room.payment:'Khác'}}</td>
+                <td class="title text-right">Tổng Thanh Toán</td>
+                <td class="title">
+                    {{total_price(room.time,room.time_out,room.type_book,room.room_type,'payment')
+                    + sum_service(room.services) + sum_custom(room.customs) +
+                    - reduce_price(room.coupon.type,room.coupon.value,total_price(room.time,room.time_out,room.type_book,room.room_type,'payment')) |  number : 0}} VND
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+    <div id='sign'>
+        <div class='print-sign'>Nhân Viên</div>
+        <div class='print-sign'>Khách Hàng</div>
+    </div>
+
+</div>
+
+
+
+
+</form>
+
+</div>
+</div>
+</div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".page-in").height($(window).height()-100);
+        $(".page-in").mCustomScrollbar();
+    })
+</script>
+

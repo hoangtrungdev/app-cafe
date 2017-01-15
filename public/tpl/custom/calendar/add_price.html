@@ -1,0 +1,44 @@
+<div>
+    <button class="btn btn-sm m-b-xs w-xs btn-info" data-ng-click="update_all(id_event,10)">Thêm 10%</button>
+    <button class="btn btn-sm m-b-xs w-xs btn-info" data-ng-click="update_all(id_event,20)">Thêm 20%</button>
+</div>
+<table class="table m-b-none">
+    <thead>
+    <tr>
+        <th style="width: 5%" >STT</th>
+        <th style="width: 20%">Tên Loại Phòng</th>
+        <th style="width: 10%" >Mã</th>
+        <th style="width: 10%" >Giá Theo Ngày</th>
+        <th style="width: 10%" >Giá Giờ Đầu</th>
+        <th style="width: 10%" >Thêm 1 Giờ </th>
+        <th style="width: 10%" >Thêm 2 Giờ </th>
+        <th style="width: 10%" >Thêm Trên 3 Giờ </th>
+        <th style="width: 5%"  ></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="room_type in room_types" >
+        <td>{{ $index + 1 }}</td>
+        <td>{{room_type.name}}</td>
+        <td>{{ room_type.code }}</td>
+        <td>
+            <input  value="{{room_type.day }}" type="text" id="day{{room_type.$id}}"  class="mod-input" ng-keyup="edit_price(id_event,'day',room_type.$id)" />
+        </td>
+        <td>
+            <input  value="{{room_type.hour }}" type="text" id="hour{{room_type.$id}}"  class="mod-input" ng-keyup="edit_price(id_event,'hour',room_type.$id)" />
+        </td>
+        <td>
+            <input  value="{{room_type.hour1}}" type="text" id="hour1{{room_type.$id}}"  class="mod-input" ng-keyup="edit_price(id_event,'hour1',room_type.$id)" />
+        </td>
+        <td>
+            <input  value="{{room_type.hour2}}" type="text" id="hour2{{room_type.$id}}"  class="mod-input" ng-keyup="edit_price(id_event,'hour2',room_type.$id)" />
+        </td>
+        <td>
+            <input  value="{{room_type.hour3}}" type="text" id="hour3{{room_type.$id}}" class="mod-input" ng-keyup="edit_price(id_event,'hour3',room_type.$id)" />
+        </td>
+
+
+    </tr>
+    </tbody>
+
+</table>

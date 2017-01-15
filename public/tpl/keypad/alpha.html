@@ -1,0 +1,100 @@
+<div>
+    <div class="num-div">
+        <button data-ng-key="1">1</button>
+        <button data-ng-key="2">2</button>
+        <button data-ng-key="3">3</button>
+        <button data-ng-key="4">4</button>
+        <button data-ng-key="5">5</button>
+        <button data-ng-key="6">6</button>
+        <button data-ng-key="7">7</button>
+        <button data-ng-key="8">8</button>
+        <button data-ng-key="9">9</button>
+        <button data-ng-key="0">0</button>
+        <div class="clr"></div>
+    </div>
+    <!--    -->
+    <div class="num-div" data-ng-if="!shift">
+        <button data-ng-key="q">q</button>
+        <button data-ng-key="w">w</button>
+        <button data-ng-key="e">e</button>
+        <button data-ng-key="r">r</button>
+        <button data-ng-key="t">t</button>
+        <button data-ng-key="y">y</button>
+        <button data-ng-key="u">u</button>
+        <button data-ng-key="i">i</button>
+        <button data-ng-key="o">o</button>
+        <button data-ng-key="p">p</button>
+        <div class="clr"></div>
+    </div>
+    <div class="num-div" data-ng-if="shift">
+        <button data-ng-key="Q">Q</button>
+        <button data-ng-key="W">W</button>
+        <button data-ng-key="E">E</button>
+        <button data-ng-key="R">R</button>
+        <button data-ng-key="T">T</button>
+        <button data-ng-key="Y">Y</button>
+        <button data-ng-key="U">U</button>
+        <button data-ng-key="I">I</button>
+        <button data-ng-key="O">O</button>
+        <button data-ng-key="P">P</button>
+        <div class="clr"></div>
+    </div>
+    <!-- -->
+    <div class="num-div" data-ng-if="!shift">
+        <button data-ng-key="a">a</button>
+        <button data-ng-key="s">s</button>
+        <button data-ng-key="d">d</button>
+        <button data-ng-key="f">f</button>
+        <button data-ng-key="g">g</button>
+        <button data-ng-key="h">h</button>
+        <button data-ng-key="j">j</button>
+        <button data-ng-key="k">k</button>
+        <button data-ng-key="l">l</button>
+        <div class="clr"></div>
+    </div>
+    <div class="num-div" data-ng-if="shift">
+        <button data-ng-key="A">A</button>
+        <button data-ng-key="S">S</button>
+        <button data-ng-key="D">D</button>
+        <button data-ng-key="F">F</button>
+        <button data-ng-key="G">G</button>
+        <button data-ng-key="H">H</button>
+        <button data-ng-key="J">J</button>
+        <button data-ng-key="K">K</button>
+        <button data-ng-key="L">L</button>
+        <div class="clr"></div>
+    </div>
+    <!-- -->
+    <div class="num-div" >
+        <button data-ng-key="[SHIFT]" > <img ng-src="img/key/{{shift && 'shift.png' || 'no-shift.png'}}" ></button>
+        <span data-ng-if="!shift">
+            <button data-ng-key="z">z</button>
+            <button data-ng-key="x">x</button>
+            <button data-ng-key="c">c</button>
+            <button data-ng-key="v">v</button>
+            <button data-ng-key="b">b</button>
+            <button data-ng-key="n">n</button>
+            <button data-ng-key="m">m</button>
+        </span>
+        <span data-ng-if="shift">
+            <button data-ng-key="Z">Z</button>
+            <button data-ng-key="X">X</button>
+            <button data-ng-key="C">C</button>
+            <button data-ng-key="V">V</button>
+            <button data-ng-key="B">B</button>
+            <button data-ng-key="N">N</button>
+            <button data-ng-key="M">M</button>
+        </span>
+        <button id="num-del" data-ng-key="DELETE" >&nbsp</button>
+        <div class="clr"></div>
+    </div>
+    <!---->
+    <div class="num-div">
+        <button class="num-mod" data-ng-click="close()" style="width: 20% !important;" >Thoát</button>
+        <button id="num-space" data-ng-key="[SPACE]">&nbsp</button>
+        <button class="num-mod" data-ng-click="close()" >OK</button>
+        <div class="clr"></div>
+    </div>
+
+
+</div>

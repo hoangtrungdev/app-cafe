@@ -1,0 +1,133 @@
+<div id="map"  data-ng-controller="MapCtrl">
+    <div class="mobile" data-ng-if="is_mobile_abc == true">
+        <div class="mobile-content">
+            <div class="m-bc" >
+                <div class="map-right-title" style="box-shadow: none">
+                    SƠ ĐỒ BÀN
+                </div>
+                <div class="map-item animated fadeInRightBig" style="animation-delay :{{$index * 300}}ms" data-ng-repeat="map in maps"  ng-class="(map._id === map_focus_now)?'active':''">
+
+                    <div class="map-title">
+                        <img src="img/icon/map-icon.png" >
+                        {{map.name}}
+                    </div>
+                    <div style="padding: 5px 13px">
+                        <div class="ad-room" ng-class="getClassRoom(room)" data-ng-repeat="room in rooms | filter:{floor_id : map._id} : true"
+                             data-ng-click="set_map_focus(map._id) ; actionChooseTable(room)" style="position: relative"
+                        >
+                            {{room.name}}
+                            <span  data-ng-if="room.parent" class="mini-ghep">{{room.parent.name}}</span>
+                        </div>
+                        <div class="clr"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <!-- toaster directive -->
+        <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+        <!-- / toaster directive -->
+        <input type="hidden" id="floor_id"/>
+        <div style="position: relative">
+            <div id="map-left">
+                <div id="map-top">
+                    <div data-ng-repeat="map in maps"  ng-class="(map._id === focus_now)?'active':''" class="map-tab" data-ng-click="set_focus(map._id)">
+                        <span data-ng-if="edit_room_id != map._id">{{map.name}}</span>
+                        <input data-ng-if="edit_room_id == map._id" ng-model="map.name" value="{{map.name}}" type="text" id="map{{map._id}}" class="mod-input" ng-keyup="edit_floor_detail(map._id)" />
+
+                    </div>
+                    <a data-ng-click="add_floor_click()"><img src="img/icon/add-map.png" /> </a>
+                    <a class="pull-right btn btn-ser-add" data-ng-click="add_floor_click()" style="margin-top: 5px">
+                        <img src="img/icon/ser-add.png">
+                        Thêm Tầng
+                    </a>
+                    <div class="clr"></div>
+                </div>
+                <div data-drop="true" data-jqyoui-options jqyoui-droppable id="containment-wrapper">
+                    <div data-ng-repeat="map in maps" ng-if="(map._id === focus_now)" class="map-tab-content"
+                         ng-style="{'background-image':'url(img/{{map.img && 'uploads/' + map.img || 'default/map-no-bg.jpg'}})'}"
+                         style=" background-repeat: no-repeat; background-size: 100% 100%; "
+                    >
+                        <div style="position: absolute ; right: 10px ; top: 10px;z-index: 1">
+                            <div class="fileUpload btn-map" title="Upload Hình Nền">
+                                <span class="glyphicon glyphicon-camera" aria-hidden="true"></span>
+                                <input class="upload" type="file" ng-model="img"  accept="image/*" base-sixty-four-input data-ng-change="upload_img(map._id , img )">
+                            </div>
+                            <a class="btn-map"  data-ng-click="set_floor(map._id)"
+                               ng-bootbox-title="Thêm Bàn - {{map.name}} "
+                               ng-bootbox-custom-dialog
+                               ng-bootbox-custom-dialog-template="tpl/custom/map/add_room.html"
+                               title="Thêm Bàn Vào Khu Vực {{map.name}}">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                            <a class="btn-map" data-ng-click="edit_floor(map._id)" title="Chỉnh Sửa Thông Tin Các Phòng">
+                                <span class="glyphicon glyphicon-pencil" data-ng-if="edit_room_id != map._id"></span>
+                                <span class="glyphicon glyphicon-floppy-disk" data-ng-if="edit_room_id == map._id"></span>
+                            </a>
+                            <a class="btn-map"
+                               ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                               ng-bootbox-confirm-action="del_floor(map._id)"
+                               title="Xóa Khu Vực {{map.name}}">
+                                <span class="glyphicon glyphicon-remove-sign"></span>
+
+                            </a>
+                        </div>
+                        <div class="ad-large-room" data-ng-repeat="room in rooms | filter:{floor_id : map._id} : true"
+                             data-drag="table_now._id == room._id" data-jqyoui-options="{containment: '#containment-wrapper'}"
+                             jqyoui-draggable="{onStop:'actionSetPosition(room._id)',containment:'position'}"
+                             ng-style="{'left': room.left + 'px' , 'top': room.top + 'px'}"  style="position: absolute" ng-class="getClassRoom(room)"
+                             data-ng-dblclick="edit_room_id == map._id|| actionChooseTable(room)" >
+                            <span>{{room.name}}</span>
+                              <span data-ng-if="room.parent" style="position: absolute ; padding: 3px; color: #FFF; border-radius: 5px;
+                                 font-size: 10px ; background: #0d8dc9 ; top: 15px ; right: -30px">Ghép với {{room.parent.name}}</span>
+                            <input ng-if="table_now._id == room._id" class="input-room-name" type="text" data-ng-model="room.name"
+                                   data-ng-change="actionUpdateRoomName(room)"
+                            >
+                            <a ng-if="table_now._id == room._id" class="room-del"
+                               ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                               ng-bootbox-confirm-action="actionDeleteRoom(room)">
+                                <img ng-src="img/icon/room-del.png" >
+                            </a>
+                            <a ng-if="table_now._id == room._id" class="room-ok" data-ng-click="actionClearTableChoose()">
+                                <img ng-src="img/icon/room-ok.png" >
+                            </a>
+                        </div>
+                        <div class="clr"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="map-right" style="padding-right: 10px">
+                <div class="map-right-title">
+                    SƠ ĐỒ BÀN
+                </div>
+                <div class="map-item animated fadeInRightBig" style="animation-delay :{{$index * 300}}ms" data-ng-repeat="map in maps"  ng-class="(map._id === map_focus_now)?'active':''">
+
+                    <div class="map-title">
+                        <img src="img/icon/map-icon.png" >
+                        {{map.name}}
+                    </div>
+                    <div style="padding: 5px 13px">
+                        <div class="ad-room" ng-class="getClassRoom(room)" data-ng-repeat="room in rooms | filter:{floor_id : map._id} : true"
+                             data-ng-click="set_map_focus(map._id) ; actionChooseTable(room)" style="position: relative"
+                        >
+                            {{room.name}}
+                            <span  data-ng-if="room.parent" class="mini-ghep">{{room.parent.name}}</span>
+                        </div>
+                        <div class="clr"></div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,254 @@
+<div  data-ng-controller="ChartCtrl">
+    <div class="mobile" data-ng-if="is_mobile_abc == true">
+        <div class="mobile-content">
+            <div id="mobile-search" data-ng-click="mobile_search = !mobile_search " data-ng-hide="mobile_menu">
+                <img src="img/icon/mobile-search.png" >
+            </div>
+            <div id="mobile-search-content" data-slide-toggle="mobile_search" data-slide-toggle-duration="300">
+                <div id="mobile-search-in">
+                    <div id="mobile-search-title">TÌM KIẾM NÂNG CAO</div>
+                    {{opened1}}
+                    <div class="mobile-search-div" style="position: relative">
+                        <a class="mobile-search-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" >
+                            {{start | date:'dd-MM-yyyy'}} <span data-ng-if="!start">Từ Ngày</span>
+                        </a>
+                    </div>
+                    <div class="mobile-search-div" style="  position: relative">
+                        <a class="mobile-search-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" >
+                            {{end | date:'dd-MM-yyyy'}} <span data-ng-if="!end">Đến Ngày</span>
+                        </a>
+                    </div>
+
+
+
+                    <div style="margin-top: 18px;border-top: 1px solid #CCC; padding:  10px ; text-align: right">
+                        <a class="btn mobile-search-btn btn-mod-sm" data-ng-click="mobile_search = false">
+                            <img src="img/icon/mobile-s.png" />
+                            Xác Nhận
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="m-bc" style="min-height: 0px">
+                <div class="m-bc-title">BÁO CÁO ( {{(end&&start)?  + (start | date:'dd-MM-yyyy')  + ' đến ' + ( end | date:'dd-MM-yyyy' ) :'TẤT CẢ'}} )</div>
+
+                <div class="m-c-bc-in bg-8cc152">
+                    <img src="img/icon/c-2.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-8cc152">
+                            {{(checkouts | filter:{  deleted : '!' + true} | datefilter:start:end ).length }}
+                        </p>
+                        <p  class="c-bc-sm"> HÓA ĐƠN</p>
+                    </div>
+                    <div class="clr"></div>
+
+                </div>
+                <div class="m-c-bc-in bg-f07025">
+                    <img src="img/icon/c-1.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-f07025">
+                            {{(checkouts | filter:{  deleted : '!' + true} | datefilter:start:end  | sumOfValue:'total') | number : 0 }}
+                        </p>
+                        <p  class="c-bc-sm">DOANH SỐ</p>
+                    </div>
+                    <div class="clr"></div>
+                </div>
+                <div class="m-c-bc-in bg-967adc">
+                    <img src="img/icon/c-3.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-967adc">
+                            {{(checkouts| filter:{  deleted : '!' + true}  | datefilter:start:end  | sumOfValue:'extra') | number : 0 }}
+                        </p>
+                        <p  class="c-bc-sm">THU THÊM</p>
+                    </div>
+                    <div class="clr"></div>
+
+                </div>
+                <div class="m-c-bc-in bg-ec87c0">
+                    <img src="img/icon/c-4.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-ec87c0">
+                            {{(checkouts | filter:{  deleted : '!' + true}  | datefilter:start:end  | sumOfValue:'reduce')
+                            +(checkouts | filter:{  deleted : '!' + true}  | datefilter:start:end  | sumOfValue:'reduce_coupon') | number : 0 }}
+                        </p>
+                        <p  class="c-bc-sm">GIẢM GIÁ</p>
+                    </div>
+                    <div class="clr"></div>
+                </div>
+
+                <div class="m-c-hotro">
+                    <img src="img/icon/ho-tro.png">
+                    Hỗ Trợ : 08.66803052
+                </div>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <div id="dash-left">
+            <div class="panel panel-default" >
+                <div class="panel-heading-mod">
+                    <div class="pull-left span-heading-mod">Thống Kê Bán Hàng Theo Ngày</div>
+                    <div class="pull-right span-heading-mod">Đơn Vị Tính : VNĐ</div>
+                    <div class="clr"></div>
+                </div>
+                <div class="c-bc">
+
+                    <div class="c-bc-in">
+                        <img src="img/icon/c-2.png">
+                        <div class="c-div-in">
+                            <p class="c-bc-title color-8cc152">
+                                {{(checkouts | filter:{  deleted : '!' + true} | filter:filterDate ).length  | number : 0}}
+                            </p>
+                            <p  class="c-bc-sm"> HÓA ĐƠN</p>
+                        </div>
+                    </div>
+                    <div class="c-bc-in">
+                        <img src="img/icon/c-1.png">
+                        <div class="c-div-in">
+                            <p class="c-bc-title color-f07025">
+                                {{(checkouts| filter:{  deleted : '!' + true} | filter:filterDate  | sumOfValue:'total') | number : 0 }}
+                            </p>
+                            <p  class="c-bc-sm">TIỀN MÓN</p>
+                        </div>
+                    </div>
+                    <div class="c-bc-in">
+                        <img src="img/icon/c-3.png">
+                        <div class="c-div-in">
+                            <p class="c-bc-title color-967adc">
+                                {{(checkouts | filter:{  deleted : '!' + true} | filter:filterDate  | sumOfValue:'extra') | number : 0 }}
+                            </p>
+                            <p  class="c-bc-sm">PHỤ THU</p>
+                        </div>
+                    </div>
+                    <div class="c-bc-in">
+                        <img src="img/icon/c-4.png">
+                        <div class="c-div-in">
+                            <p class="c-bc-title color-ec87c0">
+                                {{(checkouts| filter:{  deleted : '!' + true} | filter:filterDate  | sumOfValue:'reduce')
+                                + (checkouts| filter:{  deleted : '!' + true} | filter:filterDate  | sumOfValue:'reduce_coupon')  | number : 0 }}
+                            </p>
+                            <p  class="c-bc-sm">GIẢM GIÁ</p>
+                        </div>
+                    </div>
+
+                    <div class="clr"></div>
+                </div>
+            </div>
+            <div class="panel panel-default" data-ng-if="show_in_mobile">
+                <div class="panel-heading-mod">
+                    <div class="span-heading">Doanh Thu ( đơn vị : 1000vnđ)</div>
+                </div>
+                <div class="panel-body" id="abc">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <input data-ng-change="change_date(date)" class="form-control" format="DD/MM/YYYY" type="daterange" ng-model="date" ranges="ranges">
+                        </div>
+                    </div>
+                    <div ui-jq="plot" ui-refresh="d " ui-options="
+              [
+                { data: {{d}}, points: { show: true},lines: { show: true, tension: 0.45, lineWidth: 3,fill: true, fillColor: { colors: [{ opacity: 0.1 }, { opacity: 0.1}] } } }
+              ],
+              {
+                colors: ['{{app.color.info}}'],
+                series: { shadowSize: 3 },
+                xaxis:{
+                  font: { color: '#ccc' },
+                  position: 'bottom',
+                  ticks: {{tick}}
+                },
+                yaxis:{ font: { color: '#ccc' } },
+                grid: { hoverable: true, clickable: true, borderWidth: 0, color: '#ccc' },
+                tooltip: true,
+                tooltipOpts: { content: 'Doanh thu ngày %x là %y.3 VND',  defaultTheme: false, shifts: { x: 0, y: 20 } }
+              }
+            " style="height: calc(100vh - 450px)" >
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tablet" id="tablet-nav">
+            <a  class="tablet-a" ui-sref="app.map">
+                <img src="img/icon/tablet-1.png" alt=""/>
+                SƠ ĐỒ BÀN
+            </a>
+            <a class="tablet-a" ui-sref="app.checkout({code : ''})">
+                <img src="img/icon/tablet-1.png"/>
+                HOÁ ĐƠN
+            </a>
+            <a class="tablet-a" ui-sref="app.store">
+                <img src="img/icon/tablet-4.png"/>
+                NHẬP HÀNG
+            </a>
+
+            <a  class="tablet-a" ui-sref="app.coupon">
+                <img src="img/icon/tablet-6.png" alt=""/>
+                COUPON
+            </a>
+            <a  class="tablet-a" ui-sref="app.user">
+                <img src="img/icon/tablet-7.png" alt=""/>
+                NHÂN VIÊN
+            </a>
+            <a  class="tablet-a" ui-sref="app.customer">
+                <img src="img/icon/tablet-8.png" alt=""/>
+                KHÁCH HÀNG
+            </a>
+            <a  class="tablet-a" ui-sref="app.category">
+                <img src="img/icon/tablet-10.png" alt=""/>
+                DANH MỤC
+            </a>
+            <a  class="tablet-a" ui-sref="app.service({type : 'doan'})">
+                <img src="img/icon/tablet-5.png" alt=""/>
+                THỨC ĂN
+            </a>
+            <a  class="tablet-a" ui-sref="app.service({type : 'douong'})">
+                <img src="img/icon/tablet-5.png" alt=""/>
+                ĐỒ UỐNG
+            </a>
+            <a class="tablet-a" data-ng-click="logout()" >
+                <img src="img/icon/tablet-12.png"/>
+                ĐĂNG XUẤT
+            </a>
+            <div class="clr"></div>
+        </div>
+        <div id="dash-right">
+            <div class="panel panel-default">
+                <div class="panel-heading-mod">
+                    <div class="span-heading">TOP 30 Sản Phẩm Bán Chạy</div>
+                </div>
+                <div class="panel-body" style="padding: 8px">
+                    <div ng-repeat="service in (services | limitTo : 30| filter:{name : filter_name  , category : filter_cate } | orderBy:'-create'| startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )"
+                         ui-sref="app.service({code : service._id , type : service.category.type})" class="pr-block" data-ng-click="service_push(service)">
+                        <div class="pr-img">
+                            <img data-ng-if="service.img" ng-src="img/uploads/{{service.img}}" alt="{{ service.name }}"/>
+                            <img data-ng-if="!service.img" src="img/default/no_photo.jpg" alt="{{ service.name }}"/>
+                        </div>
+                        <div class="pr-info">
+                            <div class="pr-name">{{ service.name }}</div>
+                            <div class="pr-price">{{ service.price | number : 0   }}</div>
+
+                        </div>
+                    </div>
+                    <div class="clr"></div>
+                    <div class="text-center">
+                        <div class="pull-left tab-prev tablet" data-ng-show="currentPage - 1 > 0" ng-click="currentPage = currentPage-1">TRANG TRƯỚC</div>
+                        <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage - 1 > 0" >TRANG TRƯỚC</div>
+                        <div class="pull-right tab-next tablet" data-ng-show="(currentPage)*pageSize < (services | limitTo : 30 | filter:{name : filter_name  ,category : filter_cate }).length" ng-click="currentPage = currentPage+1">TRANG SAU</div>
+                        <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage)*pageSize < (services | limitTo : 30 | filter:{name : filter_name  ,category : filter_cate }).length" >TRANG SAU</div>
+
+                        <pagination max-size="5"  rotate="false" total-items="(services | limitTo : 30 | filter:{name : filter_name  ,category : filter_cate }).length/pageSize*10" ng-model="currentPage"
+                                    previous-text="Trước" next-text="Sau"  ng-change="pageChanged(currentPage)"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,43 @@
+<!-- navbar header -->
+<div class="navbar-header">
+    <button class="pull-right visible-xs dk" ui-toggle-class="show" data-target=".navbar-collapse">
+        <i class="glyphicon glyphicon-cog"></i>
+    </button>
+    <!-- brand -->
+    <a  class="logo">
+        <img src="img/logo.png" alt=""/>
+    </a>
+    <!-- / brand -->
+</div>
+<!-- / navbar header -->
+
+<!-- navbar collapse -->
+<div class="collapse pos-rlt navbar-collapse ">
+
+    <!-- nabar right -->
+    <ul class="nav navbar-nav navbar-right" style="margin-top: 30px">
+        <li class="dropdown" dropdown>
+            <a href class="dropdown-toggle clear" dropdown-toggle>
+              <span class="thumb-sm avatar pull-right m-t-n-sm m-b-n-sm m-l-sm">
+                <img src="img/a0.jpg" alt="...">
+                <i class="on md b-white bottom"></i>
+              </span>
+                <span class="hidden-sm hidden-md">{{session_user.name}}</span>
+            </a>
+            <!-- dropdown -->
+            <ul class="dropdown-menu animated fadeInRight w">
+                <li><a> Email : {{session_user.email}} </a></li>
+                <li><a> Chức Vụ : {{session_user.role}} </a></li>
+                <li><a> Điện Thoại : {{session_user.phone}} </a></li>
+                <li class="divider"></li>
+                <li>
+                    <a data-ng-click="logout()">Logout</a>
+                </li>
+            </ul>
+            <!-- / dropdown -->
+        </li>
+    </ul>
+    <!-- / navbar right -->
+
+</div>
+<!-- / navbar collapse -->

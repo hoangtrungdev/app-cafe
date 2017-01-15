@@ -1,0 +1,139 @@
+<div class="panel-body">
+    <label class="checkout-label" > Tên SP :</label>
+    <input class="checkout-input" ng-model="filter_name" type="text" placeholder="Tên SP"/>
+    <label class="checkout-label" > Mã SP :</label>
+    <input class="checkout-input" ng-model="filter_code" type="text" placeholder="Mã SP"/>
+    <label class="checkout-label" >Danh Mục :</label>
+    <ui-select class="checkout-input i3"  ng-model="category" theme="bootstrap" on-select="set_scope('filter_cate',category.code)">
+        <ui-select-match allow-clear="true" placeholder="Danh Mục ...">{{$select.selected.name}}</ui-select-match>
+        <ui-select-choices repeat="category in categorys | propsFilter: {name: $select.search}">
+            <div ng-bind-html="category.name | highlight: $select.search"></div>
+        </ui-select-choices>
+    </ui-select>
+    <label class="checkout-label" >Nhà C.Cấp :</label>
+    <ui-select class="checkout-input i3"  ng-model="supplier" theme="bootstrap" on-select="set_scope('filter_sup',supplier.code)">
+        <ui-select-match allow-clear="true" placeholder="Nhà C.Cấp ...">{{$select.selected.name}}</ui-select-match>
+        <ui-select-choices repeat="supplier in suppliers | propsFilter: {name: $select.search}">
+            <div ng-bind-html="supplier.name | highlight: $select.search"></div>
+        </ui-select-choices>
+    </ui-select>
+    <span class="pull-right">
+                    <a class="btn-mod-full blue " data-ng-click="add_service()">
+                        Thêm Sản Phẩm
+                    </a>
+                </span>
+</div>
+<div>
+    <table class="table-mod table table-bordered table-hover m-b-none">
+        <thead>
+        <tr>
+            <th >STT</th>
+            <th>Mã Sản Phẩm</th>
+            <th>Tên Sản Phẩm</th>
+            <th>Danh Mục</th>
+            <th>Nhà Cung Cấp</th>
+            <th>Giá Mua</th>
+            <th>Chi Phí</th>
+            <th>Giá Vốn</th>
+            <th>Giá Bán Lẻ</th>
+            <th>Giá Sĩ</th>
+            <th>Đã Bán</th>
+            <th>Hàng Tồn</th>
+            <th>Ngày Tạo</th>
+
+            <!--<th>Tình Trạng</th>-->
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="service in (services_store | filter:{ store_id : store._id ,name : filter_name ,code : filter_code , category : filter_cate , supplier : filter_sup }
+               | orderBy:'-create' | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )">
+            <td>{{ $index + 1 }}</td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id"  data-ng-dblclick="edit_ser(service._id)">{{ service.code }}</span>
+                <input  data-ng-if="edit_service_id==service._id" value="{{service.code}}" type="text" id="code{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('code',service._id)" />
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.name }}</span>
+                <input  data-ng-if="edit_service_id==service._id" value="{{service.name}}" type="text" id="name{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('name',service._id)" />
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id"  data-ng-dblclick="edit_ser(service._id)">{{ service.category.name }}</span>
+                <ui-select data-ng-if="edit_service_id==service._id" on-select="update_mod_ser('category',service._id,service.category)" ng-model="service.category" theme="select2">
+                    <ui-select-match placeholder="Danh Mục">{{$select.selected.name}}</ui-select-match>
+                    <ui-select-choices repeat="category in categorys | propsFilter: {name: $select.search , code: $select.search}" >
+                        <span  ng-bind-html="category.name | highlight: $select.search"> </span>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.supplier.name }}</span>
+                <ui-select data-ng-if="edit_service_id==service._id" on-select="update_mod_ser('supplier',service._id,service.supplier)" ng-model="service.supplier" theme="select2">
+                    <ui-select-match placeholder="Nhà CC">{{$select.selected.name}}</ui-select-match>
+                    <ui-select-choices repeat="supplier in suppliers | propsFilter: {name: $select.search , code: $select.search}" >
+                        <span  ng-bind-html="supplier.name | highlight: $select.search"> </span>
+                    </ui-select-choices>
+                </ui-select>
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.price_mua  | number : 0}}</span>
+                <input ng-model="service.price_mua"  number-mask="" data-ng-if="edit_service_id==service._id" value="{{service.price_mua}}" type="text" id="price_mua{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('price_mua',service._id)" />
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.price_chiphi  | number : 0}}</span>
+                <input  ng-model="service.price_chiphi"   number-mask="" data-ng-if="edit_service_id==service._id" value="{{service.price_chiphi}}" type="text" id="price_chiphi{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('price_chiphi',service._id)" />
+            </td>
+            <td>
+                {{ service.price_mua*1 + service.price_chiphi*1 | number : 0 }}
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.price  | number : 0}}</span>
+                <input  number-mask="" data-ng-if="edit_service_id==service._id" value="{{service.price}}" type="text" id="price{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('price',service._id)" />
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.price_si  | number : 0}}</span>
+                <input  number-mask="" data-ng-if="edit_service_id==service._id" value="{{service.price_si}}" type="text" id="price_si{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('price_si',service._id)" />
+            </td>
+            <td>
+                {{ service.sell | number : 0 }}
+            </td>
+            <td>
+                <span data-ng-if="edit_service_id!=service._id" data-ng-dblclick="edit_ser(service._id)">{{ service.qty - service.sell | number : 0 }}</span>
+                <input  number-mask="" data-ng-if="edit_service_id==service._id" value="{{service.qty - service.sell}}" type="text" id="max{{service._id}}" class="mod-input" ng-keyup="edit_detail_ser('max',service)" />
+
+            </td>
+            <td style="min-width: 100px">  {{service.create | date:'dd-MM-yyyy'}}</td>
+
+            <!--<td>-->
+            <!--<a ng-if="service.status != 'on'" data-ng-click="change_status(service._id ,'on')" class="label bg-light" title="Disabled">Hết Hàng</a>-->
+            <!--<a ng-if="service.status == 'on'" data-ng-click="change_status(service._id , 'off')"class="label bg-success" title="Active">Có Hàng</a>-->
+            <!--</td>-->
+            <td>
+                               <span class="pull-right" style="min-width: 100px">
+                                   <a data-ng-click="edit_nc(service)" >
+                                       <img src="img/icon/icon-star.png"  data-ng-if="service.ncs.length != 0">
+                                       <img src="img/icon/icon-star-1.png" data-ng-if="service.ncs.length == 0">
+                                   </a>
+                                   <a ng-bootbox-confirm="Bạn Thực Sự Muốn Chuyển Sản Phẩm Này Vào Danh Sách Bán ?"
+                                      ng-bootbox-confirm-action="copy(service)" >
+                                       <img src="img/icon/icon-copy.png" >
+                                   </a>
+                                    <a data-ng-click="edit_ser(service._id)" >
+                                        <img src="img/icon/icon-edit.png"  data-ng-if="edit_service_id!=service._id">
+                                        <img src="img/icon/icon-save.png" data-ng-if="edit_service_id==service._id"></i>
+                                    </a>
+                                    <a><img src="img/icon/icon-trash.png" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                            ng-bootbox-confirm-action="del_ser(service)" ></i>
+                                    </a>
+                            </span>
+            </td>
+
+        </tr>
+        </tbody>
+
+    </table>
+    <div class="text-center row" style="font-size: 12px" >
+        <pagination max-size="10"  boundary-links="true" rotate="false"
+                    total-items="(services | filter:{ store_id : store._id ,code : filter_code , category : filter_cate , supplier : filter_sup }  ).length" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+    </div>
+</div>

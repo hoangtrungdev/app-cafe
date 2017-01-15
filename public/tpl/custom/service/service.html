@@ -1,0 +1,418 @@
+<div  data-ng-controller="ServiceCtrl">
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div id="mobile-search" data-ng-click="mobile_search = !mobile_search " data-ng-hide="mobile_menu">
+            <img src="img/icon/mobile-search.png" >
+        </div>
+        <div data-ng-keypad="numeric" data-auto-close="true" class="numpad animated fadeInRightBig">
+            <div ng-include="" src="'tpl/keypad/alpha.html'"></div>
+        </div>
+        <div id="mobile-search-content" data-slide-toggle="mobile_search" data-slide-toggle-duration="300">
+            <div id="mobile-search-in">
+                <div id="mobile-search-title">TÌM KIẾM NÂNG CAO</div>
+                {{opened1}}
+                <div class="mobile-search-div" style="position: relative">
+                    <a class="mobile-search-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" >
+                        {{start | date:'dd-MM-yyyy'}} <span data-ng-if="!start">Từ Ngày</span>
+                    </a>
+                </div>
+                <div class="mobile-search-div" style="  position: relative">
+                    <a class="mobile-search-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" >
+                        {{end | date:'dd-MM-yyyy'}} <span data-ng-if="!end">Đến Ngày</span>
+                    </a>
+                </div>
+                <div class="m-s-line"></div>
+                <div class="mobile-search-div">
+                    <a class="mobile-search-input" data-ng-model="filter_name" data-ng-keypad-input="numeric" tabindex="1" >
+                        {{filter_name}} <span data-ng-if="!filter_name">Tên Sản Phẩm</span>
+                    </a>
+                </div>
+                <div class="mobile-search-div">
+                    <a class="mobile-search-input" data-ng-model="filter_code" data-ng-keypad-input="numeric" tabindex="1" >
+                        {{filter_code}} <span data-ng-if="!filter_code">Mã Sản Phẩm</span>
+                    </a>
+                </div>
+                <div class="m-s-line"></div>
+                <div class="mobile-search-div">
+                    <select class="mobile-search-input-select"  ng-model="cus_fil">
+                        <option value="" >Hết Hàng / Sắp Hết Hàng</option>
+                        <option ng-repeat="cus_fil in custom_filter" value="{{cus_fil.value}}">{{cus_fil.name}}</option>
+                    </select>
+
+                </div>
+                <div class="m-s-line" ></div>
+                <div class="mobile-search-div">
+                    <select class="mobile-search-input-select"  ng-model="filter_cate">
+                        <option value="" >Chọn Danh Mục</option>
+                        <option ng-repeat="category in categorys" value="{{category.code}}">{{category.name}}</option>
+                    </select>
+                </div>
+                <div class="mobile-search-div">
+                    <select class="mobile-search-input-select"  ng-model="filter_sup">
+                        <option value="" >Chọn Nhà Cung Cấp</option>
+                        <option ng-repeat="supplier in suppliers" value="{{supplier.code}}">{{supplier.name}}</option>
+                    </select>
+
+                </div>
+
+                <div style="margin-top: 18px;border-top: 1px solid #CCC; padding:  10px ; text-align: right">
+                    <a class="btn mobile-search-btn btn-mod-sm" data-ng-click="mobile_search = false">
+                        <img src="img/icon/mobile-s.png" />
+                        Xác Nhận
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mobile-content">
+            <div class="m-bc">
+                <div class="m-bc-title">DANH SÁCH SẢN PHẨM<span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+
+                <table class="table-mod table m-b-none table-hover " >
+                    <thead>
+                    <tr>
+                        <th>Mã Sản Phẩm</th>
+                        <th>Giá </th>
+                        <th>Ngày Tạo</th>
+
+                    </tr>
+                    </thead>
+                    <tbody ng-repeat="service in (services  | filter: { category : { type : type }}  | datefilter:start:end | filter:{_id : code_now , name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup }
+                        | orderBy:'-create'| startFrom:(currentPage_mobile-1)*15 | limitTo : 15  )">
+                    <tr ng-class="edit_service_id == service._id ?'tr-now':''"  class="color">
+                        <td  data-ng-click="edit_service(service._id)">{{ service.code}}</td>
+                        <td  data-ng-click="edit_service(service._id)">{{ service.price | number : 0 }}</td>
+                        <td  data-ng-click="edit_service(service._id)">{{service.create | date:'dd-MM-yyyy'}}</td>
+                    </tr>
+                    <tr class="tr-edit" data-ng-if="edit_service_id == service._id">
+                        <td colspan="3">
+                            <div style="font-size: 13px ; color:#0d8dc9 ; padding: 5px 0px ; font-weight: bold">Thông tin chi tiết sản phẩm</div>
+                            <table class="check-table">
+                                <tr>
+                                    <td class="check-tab-title"> Mã Sản Phẩm</td>
+                                    <td>{{service.code}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tên Sản Phẩm</td>
+                                    <td>{{ service.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Danh Mục</td>
+                                    <td>{{ service.category.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Giá</td>
+                                    <td>{{ service.price | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Ngày Nhập</td>
+                                    <td>{{service.create | date:'dd-MM-yyyy'}}</td>
+                                </tr>
+
+                            </table>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < (services  | filter: { category : { type : type }}  | datefilter:start:end | filter:{_id : code_now , name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup } | orderBy:'-create').length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < (services  | filter: { category : { type : type }} | datefilter:start:end | filter:{_id : code_now , name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup } | orderBy:'-create').length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon" data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+        <div style="position: relative ; padding: 15px">
+            <div class=" panel-default panel-min cate-ser"  >
+                <div class="panel-heading-mod"  style="  color: #FFF; border-bottom: 1px solid #0a2735; border-radius: 15px 15px 0px 0px ;  box-shadow: 0px 0px 2px #cac7c7">
+                    <div class="pull-left span-heading-mod">Danh Mục</div>
+                    <img src="img/icon/ser-icon.png" class="pull-right">
+                    <div class="clr"></div>
+                </div>
+                <div>
+                    <div class="ser-category animated fadeInRightBig" data-ng-repeat="category in categorys | filter:{type : type} "
+                         ng-class="(filter_cate == category.code)?'active':''"
+                         data-ng-click="actionChooseCate(category)" style="animation-delay :{{$index * 500}}ms">
+                        <img class="ser-cate-img"  data-ng-if="category.img" ng-src="img/users/{{category.img}}" alt="{{ category.name }}" />
+                        <img class="ser-cate-img"  data-ng-if="!category.img" src="img/default/no_photo.jpg" alt="{{ category.name }}"  />
+                        {{category.name}}
+                    </div>
+
+                </div>
+            </div>
+            <div class="panel-default panel-min ser-mod" >
+                <div class="panel-heading-mod">
+                    <div class="pull-left span-heading-mod">Danh Sách Sản Phẩm</div>
+                    <a class="pull-right btn btn-ser-search" data-ng-click="search_show=!search_show ; list_show=''">
+                        <img src="img/icon/ser-search.png">
+                        <img src="img/icon/down.png">
+                    </a>
+                    <a class="pull-right btn btn-ser-search" data-ng-click="list_show=!list_show ; search_show='' ">
+                        <img src="img/icon/ser-list.png">
+                        <img src="img/icon/down.png">
+                    </a>
+                    <a class="pull-right btn btn-ser-search" data-ng-click="exportData()">
+                        <img src="img/icon/icon-file.png">
+                        Xuất Excel
+                    </a>
+                    <a class="pull-right btn btn-ser-add" data-ng-click="add_service()">
+                        <img src="img/icon/ser-add.png">
+                        Thêm Mới
+                    </a>
+
+
+                    <div class="clr"></div>
+                </div>
+                <div id="ser-list" data-ng-show="list_show">
+                    <div class="list-check">Mã Sản Phẩm
+                        <div class="pull-right">
+                            <input type="checkbox" ng-model="show_code" id="show_code" class="css-checkbox" />
+                            <label for="show_code" class="css-label"></label>
+                        </div>
+                    </div>
+                    <div class="list-check">Tên Sản Phẩm
+                        <div class="pull-right">
+                            <input type="checkbox" ng-model="show_name" id="show_name" class="css-checkbox" />
+                            <label for="show_name" class="css-label"></label>
+                        </div>
+                    </div>
+                    <div class="list-check">Danh Mục
+                        <div class="pull-right">
+                            <input type="checkbox" ng-model="show_category" id="show_category" class="css-checkbox" />
+                            <label for="show_category" class="css-label"></label>
+                        </div>
+                    </div>
+                    <div class="list-check">Giá
+                        <div class="pull-right">
+                            <input type="checkbox" ng-model="show_gia" id="show_gia" class="css-checkbox" />
+                            <label for="show_category" class="css-label"></label>
+                        </div>
+                    </div>
+
+
+                    <div class="list-check">Ngày Tạo
+                        <div class="pull-right">
+                            <input type="checkbox" ng-model="show_date" id="show_date" class="css-checkbox" />
+                            <label for="show_date" class="css-label"></label>
+                        </div>
+                    </div>
+                    <div class="list-check">
+                        <a class="btn ser-list-hide btn-mod-sm" data-ng-click="list_show=''">
+                            <img src="img/icon/list-hide.png"/>
+                            Ẩn Đi
+                        </a>
+                    </div>
+                </div>
+                <div id="ser-search" data-ng-show="search_show">
+                    <div class="ser-search-div">
+                        <label class="checkout-label" > Tên Sản Phẩm </label>
+                        <input class="checkout-input" ng-model="filter_name" type="text" placeholder="Tên Sản Phẩm" />
+                        <div class="clr"></div>
+                    </div>
+                    <div class="ser-search-div">
+                        <label class="checkout-label" > Mã Sản Phẩm </label>
+                        <input class="checkout-input" ng-model="filter_code" type="text" placeholder="Mã Sản Phẩm" />
+                        <div class="clr"></div>
+                    </div>
+                    <div class="ser-search-div">
+                        <label class="checkout-label" >Danh Mục </label>
+                        <ui-select class="checkout-input"  ng-model="category" theme="select2" on-select="set_scope('filter_cate',category.code)">
+                            <ui-select-match allow-clear="true" placeholder="Chọn Danh Mục">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="category in categorys | filter:{type : type} | propsFilter: {name: $select.search}">
+                                <div ng-bind-html="category.name | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                        <div class="clr"></div>
+                    </div>
+
+
+                    <div class="ser-search-div" style="position: relative">
+                        <label class="checkout-label" >Từ Ngày </label>
+                        <input type="text" placeholder="Từ Ngày" class="checkout-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" />
+                        <img class="c-date" src="img/icon/date.png" />
+                        <div class="clr"></div>
+                    </div>
+                    <div class="ser-search-div" style=" border-bottom: 1px solid #187CAB; position: relative">
+                        <label class="checkout-label" >Đến Ngày </label>
+                        <input type="text" placeholder="Đến Ngày" class="checkout-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" />
+                        <img class="c-date" src="img/icon/date.png" />
+                        <div class="clr"></div>
+
+                    </div>
+                    <div style="border-top: 1px solid #21A0DC; padding: 10px ; text-align: right">
+                        <a class="btn ser-list-hide btn-mod-sm" data-ng-click="search_show=''">
+                            <img src="img/icon/list-hide.png"/>
+                            Ẩn Đi
+                        </a>
+                    </div>
+
+                </div>
+                <div>
+                    <table class="table-mod table table-hover m-b-none">
+                        <thead>
+                        <tr class="tr-head">
+                            <th >STT</th>
+                            <th data-ng-show="show_code">Mã Sản Phẩm</th>
+                            <th data-ng-show="show_name">Tên Sản Phẩm</th>
+                            <th data-ng-show="show_category">Danh Mục</th>
+                            <th data-ng-show="show_gia">Giá</th>
+                            <th data-ng-show="show_date">Ngày Tạo</th>
+                            <!--<th>Tình Trạng</th>-->
+                            <th style="min-width: 120px ; text-align: center">Tác Vụ</th>
+                        </tr>
+                        </thead>
+                        <tbody ng-repeat="service in (services | filter: { category : { type : type }}  | datefilter:start:end | filter:{_id : code_now , name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup }
+                        | orderBy:'-create'| startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )">
+                        <tr ng-class="edit_service_id == service._id ?'tr-now':''"  class="color">
+                            <td>{{ $index + 1 + pageSize*(currentPage-1)}}
+                            </td>
+                            <td  data-ng-click="edit_service(service._id)" data-ng-show="show_code">{{ service.code }}</td>
+                            <td  data-ng-click="edit_service(service._id)" data-ng-show="show_name">{{ service.name }}</td>
+                            <td  data-ng-click="edit_service(service._id)" data-ng-show="show_category">{{ service.category.name }}</td>
+                            <td  data-ng-click="edit_service(service._id)" data-ng-show="show_gia">{{ service.price  | number : 0}}</td>
+                            <td  data-ng-click="edit_service(service._id)" data-ng-show="show_date">{{service.create | date:'dd-MM-yyyy'}}</td>
+                            <td class="text-center">
+                                <a class="tool-ob" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"  ng-bootbox-confirm-action="del(service)" >
+                                    <img src="img/icon/icon-trash.png" >
+                                    <div class="tooltip-mod">Xóa Dữ Liệu</div>
+
+                                </a>
+                            </td>
+
+                        </tr>
+                        <tr class="tr-edit" data-ng-if="edit_service_id == service._id">
+                            <td colspan="15">
+                                <div class="service-div" style="width: 100%">
+                                    <div class="ser-head">
+                                        <span class="ser-head-title">Thông Tin Sản Phẩm</span>
+                                    </div>
+                                    <div class="ser-info">
+                                        <div class="ser-img">
+                                            <img data-ng-if="service.img" ng-src="img/uploads/{{service.img}}" alt="{{ service.name }}" />
+                                            <img data-ng-if="!service.img" src="img/default/no_photo.jpg" alt="{{ service.name }}"  />
+                                        </div>
+
+                                        <table class="ser-table">
+                                            <tr>
+                                                <td class="ser-tab-title"> Mã Sản Phẩm</td>
+                                                <td>
+                                                    <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.code}}</span>
+                                                    <input data-ng-show="edit_ser"  ng-model="service.code" type="text" id="code{{service._id}}" class="mod-input" ng-keyup="edit_detail('code',service._id)" />
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="ser-tab-title">Tên Sản Phẩm</td>
+                                                <td>
+                                                    <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.name | limitTo: 25 }}</span>
+                                                    <input data-ng-show="edit_ser"  ng-model="service.name" type="text" id="name{{service._id}}" class="mod-input" ng-keyup="edit_detail('name',service._id)" />
+                                                </td>
+
+                                            </tr>
+                                            <tr>
+                                                <td class="ser-tab-title">Giá </td>
+                                                <td>
+                                                    <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.price | number : 0}}</span>
+                                                    <input data-ng-show="edit_ser" ng-model="service.price"  number-mask="" type="text" id="price{{service._id}}" class="mod-input" ng-keyup="edit_detail('price',service._id)" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ser-tab-title">Danh Mục</td>
+                                                <td>
+                                                    <span data-ng-show="!edit_ser" class="ser-tab-span">{{ service.category.name}}</span>
+                                                    <ui-select data-ng-show="edit_ser" style="width: 100%" on-select="update_mod('category',service._id,service.category)" ng-model="service.category" theme="select2">
+                                                        <ui-select-match placeholder="Danh Mục">{{$select.selected.name}}</ui-select-match>
+                                                        <ui-select-choices repeat="category in categorys | filter:{type : type}  | propsFilter: {name: $select.search , code: $select.search}" >
+                                                            <span  ng-bind-html="category.name | highlight: $select.search"> </span>
+                                                        </ui-select-choices>
+                                                    </ui-select>
+                                                </td>
+
+                                            </tr>
+
+                                            <tr>
+                                                <td class="ser-tab-title">Ngày Nhập</td>
+                                                <td> <span  class="ser-tab-span"> {{service.create | date:'dd-MM-yyyy'}}</span></td>
+
+                                            </tr>
+                                        </table>
+                                        <div class="clr"></div>
+
+                                        <div class="fileUpload btn btn-mod-upload">
+                                            <span>
+                                                <img src="img/icon/upload.png" />
+                                                Upload ảnh
+                                            </span>
+                                            <input class="upload" type="file" ng-model="img"  accept="image/*" base-sixty-four-input data-ng-change="upload_img(service._id , img )">
+                                        </div>
+                                        <a data-ng-show="!edit_ser" class="btn btn-ser-edit" data-ng-click="edit_ser = true">
+                                            <img src="img/icon/ser-edit.png" />
+                                            Chỉnh Sửa
+                                        </a>
+                                        <a data-ng-show="edit_ser" class="btn btn-ser-edit" data-ng-click="update_emit();edit_ser = false">
+                                            <img src="img/icon/ser-save.png" />
+                                            Lưu Lại
+                                        </a>
+                                        <!--<a data-ng-click="edit_nc(service)" class="btn btn-ser-edit">-->
+                                            <!--<img src="img/icon/icon-star.png"  data-ng-if="service.ncs.length != 0">-->
+                                            <!--<img src="img/icon/icon-star-1.png" data-ng-if="service.ncs.length == 0">-->
+                                            <!--Thuộc Tính-->
+                                        <!--</a>-->
+                                        <div class="ser-sub">
+                                            * Giá Vốn = Giá Mua + Chi Phí &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                                            ** Cập nhật lần cuối vào lúc
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                    <div class="text-center row" style="font-size: 12px" >
+                        <div class="pull-left tab-prev tablet" data-ng-show="currentPage - 1 > 0" ng-click="currentPage = currentPage-1">TRANG TRƯỚC</div>
+                        <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage - 1 > 0" >TRANG TRƯỚC</div>
+                        <div class="pull-right tab-next tablet" data-ng-show="(currentPage)*pageSize < (services| datefilter:start:end | filter:{_id : code_now ,name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup }  ).length" ng-click="currentPage = currentPage+1">TRANG SAU</div>
+                        <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage)*pageSize < (services| datefilter:start:end | filter:{_id : code_now ,name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup }  ).length" >TRANG SAU</div>
+
+                        <pagination max-size="5" rotate="false"   next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối" boundary-links="true"
+                                    total-items="(services | filter:{type : type}  |filter : filter_sl | datefilter:start:end | filter:{_id : code_now ,name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup }  ).length/pageSize*10" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                    </div>
+                    <table id="extable" style="display: none" class="table-mod table m-b-none">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Sản Phẩm</th>
+                            <th>Tên Sản Phẩm</th>
+                            <th>Danh Mục</th>
+                            <th>Giá</th>
+                            <th>Ngày Tạo</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  ng-repeat="service in (services | filter: { category : { type : type }}  | datefilter:start:end | filter:{_id : code_now , name : filter_name  ,code : filter_code  , category : filter_cate , supplier : filter_sup }
+                        | orderBy:'-create' ) ">
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ service.code }}</td>
+                            <td>{{ service.name }}</td>
+                            <td>{{ service.category.name }}</td>
+                            <td>{{ service.price  | number : 0}}</td>
+                            <td>{{service.create | date:'dd-MM-yyyy'}}</td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,200 @@
+<div  data-ng-controller="SupplierCtrl">
+    <!-- toaster directive -->
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <!-- / toaster directive -->
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div class="m-bc">
+                <div class="m-bc-title">DANH SÁCH NHÀ CUNG CẤP <span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+                <table class="table-mod table m-b-none table-hover " >
+                    <thead>
+                    <tr>
+                        <th>Mã NCC</th>
+                        <th>Tên NCC </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="supplier in (suppliers | startFrom:(currentPage_mobile-1)*15 | limitTo : 15  ) ">
+                        <td>{{ supplier.code }}</td >
+                        <td>{{ supplier.name }}</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < suppliers.length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < suppliers.length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <div class="panel panel-default"  style="padding-bottom: 20px">
+            <div class="panel-heading-mod">
+                <div class="pull-left span-heading-mod">Danh Sách Nhà Cung Cấp</div>
+                <a class="pull-right btn btn-ser-add" data-ng-click="add_sup()">
+                    <img src="img/icon/ser-add.png">
+                    Thêm Mới
+                </a>
+                <a class="pull-right btn btn-ser-add" ui-sref="app.store">
+                    <img src="img/icon/icon-nap.png">
+                    Danh Sách Đợt Nhập Hàng
+                </a>
+                <div class="clr"></div>
+            </div>
+            <div>
+                <table class="table-mod table table-hover m-b-none">
+                    <thead>
+                    <tr>
+                        <th  style="width:5%">STT</th>
+                        <th>Mã Nhà C.Cấp</th>
+                        <th>Tên Nhà C.Cấp</th>
+                        <th>Email</th>
+                        <th>Điện Thoại</th>
+                        <th>Địa Chỉ</th>
+                        <th style="width: 100px"></th>
+                    </tr>
+                    </thead>
+                    <tbody ng-repeat="supplier in (suppliers | filter:filter  | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  ) ">
+                    <tr ng-class="edit_supplier_id == supplier._id ?'tr-now':''"  class="color">
+                        <td>{{ $index + 1 }}</td>
+                        <td data-ng-click="edit_supplier(supplier._id)">{{ supplier.code }}</td>
+                        <td data-ng-click="edit_supplier(supplier._id)">{{ supplier.name }}</td>
+                        <td  data-ng-click="edit_supplier(supplier._id)">{{ supplier.email }} </td>
+                        <td  data-ng-click="edit_supplier(supplier._id)">{{ supplier.phone }}</td>
+                        <td  data-ng-click="edit_supplier(supplier._id)">{{ supplier.address }}</td>
+                        <td>
+                           <span class="pull-right" style="min-width: 50px">
+                                <a class="tool-ob" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"   ng-bootbox-confirm-action="del(supplier._id)">
+                                    <img src="img/icon/icon-trash.png" >
+                                    <div class="tooltip-mod">Xóa Dữ Liệu</div>
+
+                                </a>
+                            </span>
+                        </td>
+
+                    </tr>
+                    <tr class="tr-edit" data-ng-if="edit_supplier_id == supplier._id">
+                        <td colspan="15">
+                            <div class="service-div">
+                                <div class="ser-head">
+                                    <span class="ser-head-title">Thông Tin Khách Hàng</span>
+                                </div>
+                                <div class="ser-info">
+                                    <table class="ser-table ser-table-mod">
+                                        <tr>
+                                            <td class="cus-tab-title">Mã Khách Hàng</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ supplier.code }}</span>
+                                                <input data-ng-show="edit_ser" ng-model="supplier.code" type="text" id="code{{supplier._id}}" class="mod-input-cus" ng-keyup="edit_detail('code',supplier.code)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="cus-tab-title">Họ Tên</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ supplier.name }}</span>
+                                                <input data-ng-show="edit_ser" ng-model="supplier.name" type="text" id="name{{supplier._id}}" class="mod-input-cus" ng-keyup="edit_detail('name',supplier._id)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="cus-tab-title">Email</td>
+                                            <td colspan="3">
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{supplier.email}}</span>
+                                                <input data-ng-show="edit_ser" ng-model="supplier.email" type="text" id="email{{supplier._id}}" class="mod-input-cus" ng-keyup="edit_detail('email',supplier._id)" />
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="cus-tab-title">Điện Thoại</td>
+                                            <td>
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{ supplier.phone }}</span>
+                                                <input data-ng-show="edit_ser" ng-model="supplier.phone" type="text" id="phone{{supplier._id}}" class="mod-input-cus" ng-keyup="edit_detail('phone',supplier._id)" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="cus-tab-title">Địa Chỉ</td>
+                                            <td colspan="3">
+                                                <span data-ng-show="!edit_ser" class="ser-tab-span">{{supplier.address}}</span>
+                                                <input data-ng-show="edit_ser" ng-model="supplier.address" type="text" id="address{{supplier._id}}" class="mod-input-cus" ng-keyup="edit_detail('address',supplier._id)" />
+
+                                            </td>
+
+                                        </tr>
+
+                                    </table>
+                                    <div class="clr"></div>
+                                    <a data-ng-show="!edit_ser" class="btn btn-ser-edit" data-ng-click="edit_ser = true">
+                                        <img src="img/icon/ser-edit.png" />
+                                        Chỉnh Sửa
+                                    </a>
+                                    <a data-ng-show="edit_ser" class="btn btn-ser-edit" data-ng-click="update_emit();edit_ser = false">
+                                        <img src="img/icon/ser-save.png" />
+                                        Lưu Lại
+                                    </a>
+                                    <div class="ser-sub" style="margin-top: 20px">
+                                        ** Cập nhật lần cuối vào lúc
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ser-div-right tablet-hide" style="position: relative">
+                                <div class="ser-head">
+                                    <span class="ser-head-title">Sản Phẩm Của Nhà Cung Cấp</span>
+                                </div>
+                                <table class="table-mod table table-hover m-b-none">
+                                    <thead>
+                                    <tr class="tr-head">
+                                        <th>STT</th>
+                                        <th>Mã Sản Phẩm</th>
+                                        <th>Tên Sản Phẩm</th>
+                                        <th>Đợt Nhập</th>
+                                        <th>Ngày Tạo</th>
+
+
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="service in (services | filter:{ supplier : supplier.code } : true | datefilter:start:end  | orderBy:'-date'
+                                      | startFrom:(currentPage_ck-1)*pageSize_ck | limitTo : pageSize_ck  )">
+                                        <td >{{ (currentPage_ck-1)*pageSize_ck + $index + 1 }}</td>
+                                        <td >{{ service.code}}</td>
+                                        <td>{{service.name}}</td>
+                                        <td>{{service.store_name}}</td>
+                                        <td >{{ service.create | date:'dd-MM-yyyy'}}</td>
+
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="text-right on-bot" style="font-size: 12px ; margin-right: 10px">
+                                    <pagination max-size="10"  rotate="false"  total-items="(services | filter:{ supplier : supplier.code } | datefilter:start:end | orderBy:'-time_out' ).length/pageSize_ck*10" ng-model="currentPage_ck" ng-change="pageChanged_ck(currentPage_ck)"></pagination>
+                                </div>
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+                </table>
+                <div class="text-center row" style="font-size: 12px">
+
+                    <div class="pull-left tab-prev tablet" data-ng-show="currentPage - 1 > 0" ng-click="currentPage = currentPage-1">TRANG TRƯỚC</div>
+                    <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage - 1 > 0" >TRANG TRƯỚC</div>
+                    <div class="pull-right tab-next tablet" data-ng-show="(currentPage)*pageSize < (supplier | filter: filter   ).length" ng-click="currentPage = currentPage+1">TRANG SAU</div>
+                    <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage)*pageSize < (supplier | filter: filter   ).length" >TRANG SAU</div>
+
+                    <pagination max-size="10"  boundary-links="true" rotate="false"   next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối"
+                                total-items="(supplier | filter: filter   ).length" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

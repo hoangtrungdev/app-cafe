@@ -1,0 +1,48 @@
+<div  data-ng-controller="CouponCtrl">
+    <form name="formValidate" class="form-cus form-horizontal form-validation" data-ng-submit="add()">
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Mã Giảm Giá</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Mã Giãm Giá" ng-model="code" required >
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Ngày Bắt Đầu</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control input-sm w-sm inline m-r"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="opened1" datepicker-options="dateOptions" close-text="Close" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Ngày Kết Thúc</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control input-sm w-sm inline m-r"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="opened2" datepicker-options="dateOptions" close-text="Close" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Loại</label>
+            <div class="col-sm-9">
+                <select class="form-control"  ng-model="type" >
+                    <option value="value">Giá Trị</option>
+                    <option value="percent">Phần Trăm</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">Giá Trị</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" placeholder="Giá Trị" ng-model="value" required >
+            </div>
+        </div>
+
+        <div class="text-right  lter">
+            <button type="submit"class="btn btn-d-pop">
+                <img src="img/icon/pop-ok.png" />
+                Xác Nhận
+            </button>
+            <div class="clr"></div>
+        </div>
+
+    </form>
+</div>
+

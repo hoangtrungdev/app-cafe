@@ -1,0 +1,8 @@
+<div  ng-drop="true" data-ng-controller="PositionCtrl" class="container-fluid " style="position: relative; height: 400px ; display: block" >
+    <div ng-repeat="div in position.list" >
+        <div  ng-drag="true"  ng-center-anchor="true" ng-drag-success="onDragComplete(div.left)"  ng-style="{'left':div.left,'top':div.top,
+        'background':div.color,'width':div.width,'height':div.height}" style="position: absolute;display: block">
+
+        </div>
+    </div>
+</div>

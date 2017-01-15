@@ -1,0 +1,585 @@
+<div  data-ng-controller="CheckoutCtrl" >
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div id="mobile-search" data-ng-click="mobile_search = !mobile_search " data-ng-hide="mobile_menu">
+                <img src="img/icon/mobile-search.png" >
+            </div>
+            <div data-ng-keypad="numeric" data-auto-close="true" class="numpad animated fadeInRightBig">
+                <div ng-include="" src="'tpl/keypad/alpha.html'"></div>
+            </div>
+            <div id="mobile-search-content" data-slide-toggle="mobile_search" data-slide-toggle-duration="300">
+                <div id="mobile-search-in">
+                    <div id="mobile-search-title">TÌM KIẾM NÂNG CAO</div>
+                    {{opened1}}
+                    <div class="mobile-search-div" style="position: relative">
+                        <a class="mobile-search-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" >
+                            {{start | date:'dd-MM-yyyy'}} <span data-ng-if="!start">Từ Ngày</span>
+                        </a>
+                    </div>
+                    <div class="mobile-search-div" style="  position: relative">
+                        <a class="mobile-search-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" >
+                            {{end | date:'dd-MM-yyyy'}} <span data-ng-if="!end">Đến Ngày</span>
+                        </a>
+                    </div>
+                    <div class="m-s-line"></div>
+                    <div class="mobile-search-div">
+                        <a class="mobile-search-input" data-ng-model="filter_code_room" data-ng-keypad-input="numeric" tabindex="1" >
+                            {{filter_code_room}} <span data-ng-if="!filter_code_room">Mã Hóa Đơn</span>
+                        </a>
+                    </div>
+                    <div class="mobile-search-div">
+                        <select class="mobile-search-input-select"  ng-model="filter_nv" style="margin: 0px">
+                            <option value="" >Chọn Nhân Viên</option>
+                            <option ng-repeat="user in users" value="{{user.username}}">{{user.name}}</option>
+                        </select>
+                    </div>
+
+
+                    <div style="margin-top: 18px;border-top: 1px solid #CCC; padding:  10px ; text-align: right">
+                        <a class="btn mobile-search-btn btn-mod-sm" data-ng-click="mobile_search = false">
+                            <img src="img/icon/mobile-s.png" />
+                            Xác Nhận
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="m-bc">
+                <div class="m-bc-title">HÓA ĐƠN BÁN HÀNG <span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+                <table class="table-mod table m-b-none table-hover " >
+                    <thead>
+                    <tr>
+                        <th>Mã Phiếu</th>
+                        <th style="min-width: 95px ; text-align: center">Tiền Thu </th>
+                    </tr>
+                    </thead>
+                    <tbody  ng-repeat="checkout in (checkouts | datefilter:start:end  | orderBy:'-date'
+                                      | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }
+                                      | filter: rulefilter
+                                      | startFrom:(currentPage_mobile-1)*15 | limitTo : 15  )">
+                    <tr ng-class="edit_checkout_id == checkout._id ?'tr-now':''"  class="color">
+                        <td  data-ng-click="edit_checkout(checkout._id)">{{ checkout.code}}</td>
+                        <td  data-ng-click="edit_checkout(checkout._id)" style="text-align: center ; color: #0d8dc9">{{ checkout.total*1 + 1*checkout.extra - 1*checkout.reduce | number : 0 }}</td>
+                    </tr>
+                    <tr class="tr-edit" data-ng-if="edit_checkout_id == checkout._id">
+                        <td colspan="2">
+                            <div style="font-size: 13px ; color:#0d8dc9 ; padding: 5px 0px ; font-weight: bold">Thông tin chi tiết hóa đơn</div>
+                            <table class="check-table">
+                                <tr>
+                                    <td class="check-tab-title"> Mã Hóa Đơn</td>
+                                    <td>{{checkout.code}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Mã Khách Hàng</td>
+                                    <td>{{ checkout.customer.code }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tên Khách Hàng</td>
+                                    <td>{{ checkout.customer.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tiền Món</td>
+                                    <td>{{ checkout.total | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Phụ Thu</td>
+                                    <td>{{ checkout.extra | number : 0 }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="check-tab-title">Giảm Giá</td>
+                                    <td>{{ checkout.reduce | number : 0 }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="check-tab-title">Khách Trả</td>
+                                    <td>{{ checkout.paid | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Tiền Thừa</td>
+                                    <td>{{ checkout.paid - checkout.total*1 - 1*checkout.extra + 1*checkout.reduce | number : 0 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">N.Viên Phục Vụ</td>
+                                    <td>{{ checkout.user.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">N.Viên Thanh Toán</td>
+                                    <td>{{ checkout.user_add.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="check-tab-title">Ngày Tạo</td>
+                                    <td>{{ checkout.date | date:'dd-MM-yyyy'}}</td>
+                                </tr>
+                            </table>
+                            <div style="color: #ec7424 ; font-size: 13px; font-weight: bold">
+                                TỔNG CỘNG : &nbsp&nbsp&nbsp&nbsp {{ checkout.total - checkout.reduce  | number : 0 }}
+                                <span class="pull-right" style="font-size: 12px ; color: #454545; font-weight: normal"> Đơn vị tính : VNĐ</span>
+                            </div>
+
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < (checkouts | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < (checkouts | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true  }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+        <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+        <div class="panel panel-default" style="margin-bottom: 6px" >
+            <div class="panel-heading-mod">
+                <div class="pull-left span-heading-mod">Báo Cáo Doanh Số Bán Hàng</div>
+                <div class="pull-right span-heading-mod">Đơn Vị Tính : VNĐ</div>
+                <div class="clr"></div>
+            </div>
+            <div class="c-bc">
+                <div class="c-bc-in">
+                    <img src="img/icon/c-2.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-8cc152">
+                            {{ (checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv, deleted :true }| filter: rulefilter ).length | number : 0}}
+                        </p>
+                        <p  class="c-bc-sm"> HÓA ĐƠN</p>
+                    </div>
+                </div>
+                <div class="c-bc-in">
+                    <img src="img/icon/c-1.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-f07025">
+                            {{(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'total' | number : 0 )}}
+                        </p>
+                        <p  class="c-bc-sm">TIỀN MÓN</p>
+                    </div>
+                </div>
+                <div class="c-bc-in">
+                    <img src="img/icon/c-3.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-967adc">
+                            {{(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'extra' | number : 0 )}}
+                        </p>
+                        <p  class="c-bc-sm">PHỤ THU</p>
+                    </div>
+                </div>
+
+
+                <div class="c-bc-in">
+                    <img src="img/icon/c-4.png">
+                    <div class="c-div-in">
+                        <p class="c-bc-title color-ec87c0">
+                            {{
+                            (checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv  , deleted :true}| filter: rulefilter| sumOfValue:'reduce' )
+                            +(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv  , deleted :true}| filter: rulefilter| sumOfValue:'reduce_coupon' )
+                            | number : 0 }}
+                        </p>
+                        <p  class="c-bc-sm">GIẢM GIÁ</p>
+                    </div>
+                </div>
+
+                <div class="clr"></div>
+            </div>
+        </div>
+        <div class="page-in" >
+            <div class="pad-left" >
+                <div class="panel panel-default panel-min-check" style="margin-top: 10px" >
+                    <div class="panel-heading-mod">
+                        <div class="pull-left span-heading-mod">Phiếu Bán Hàng</div>
+
+                        <a class="pull-right btn btn-ser-search" data-ng-click="search_show=!search_show">
+                            <img src="img/icon/ser-search.png">
+                            <img src="img/icon/down.png">
+                        </a>
+                        <a class="pull-right btn btn-ser-search" data-ng-click="exportData()">
+                            <img src="img/icon/icon-file.png">
+                            Xuất Excel
+                        </a>
+                        <a class="pull-right btn btn-ser-search" ui-sref="app.checkout">
+                            <img src="img/icon/icon-file.png">
+                            Danh Sách Hóa Đơn
+                        </a>
+                        <div class="clr"></div>
+                    </div>
+                    <div id="ser-search" data-ng-show="search_show">
+                        <div class="ser-search-div">
+                            <label class="checkout-label" > Mã Hóa Đơn </label>
+                            <input class="checkout-input" ng-model="filter_code_room" type="text" placeholder="Mã Hóa Đơn"/>
+                            <div class="clr"></div>
+                        </div>
+                        <div class="ser-search-div">
+                            <label class="checkout-label" >Tên Khách Hàng</label>
+                            <input class="checkout-input " ng-model="filter_kh" type="text" placeholder="Tên Khách Hàng"/>
+                            <div class="clr"></div>
+                        </div>
+                        <div class="ser-search-div">
+                            <label class="checkout-label" >Nhân Viên </label>
+                            <ui-select class="checkout-input"  ng-model="user" theme="select2" on-select="set_scope('filter_nv',user.name)">
+                                <ui-select-match allow-clear="true" placeholder="Nhân Viên">{{$select.selected.name}}</ui-select-match>
+                                <ui-select-choices repeat="user in users | propsFilter: {name: $select.search}">
+                                    <div ng-bind-html="user.name | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                            <div class="clr"></div>
+                        </div>
+
+                        <div class="ser-search-div" style="position: relative">
+                            <label class="checkout-label" >Từ Ngày </label>
+                            <input type="text" placeholder="Từ Ngày" class="checkout-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" />
+                            <img class="c-date" src="img/icon/date.png" />
+                            <div class="clr"></div>
+                        </div>
+                        <div class="ser-search-div" style=" border-bottom: 1px solid #187CAB; position: relative">
+                            <label class="checkout-label" >Đến Ngày </label>
+                            <input type="text" placeholder="Đến Ngày" class="checkout-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" />
+                            <img class="c-date" src="img/icon/date.png" />
+                            <div class="clr"></div>
+
+                        </div>
+                        <div style="border-top: 1px solid #21A0DC; padding: 10px ; text-align: right">
+                            <a class="btn ser-list-hide btn-mod-sm" data-ng-click="search_show=''">
+                                <img src="img/icon/list-hide.png"/>
+                                Ẩn Đi
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <table class="table-mod table m-b-none table-hover " >
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu</th>
+                            <th>Ngày </th>
+                            <th data-ng-hide="tablet_hide">Tổng Cộng</th>
+                            <th>Lý Do Xóa</th>
+                            <th  style="width: 75px"></th>
+                        </tr>
+                        </thead>
+                        <tbody  ng-repeat="checkout in (checkouts | datefilter:start:end  | orderBy: '-date'
+                                      | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }
+                                      | filter: rulefilter
+                                      | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )">
+                        <tr ng-class="edit_checkout_id == checkout._id ?'tr-now':''"  class="color  " >
+                            <td data-ng-click="edit_checkout(checkout._id)">{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                            <td data-ng-click="edit_checkout(checkout._id)">{{ checkout.code}}</td>
+                            <td data-ng-click="edit_checkout(checkout._id)">{{ checkout.date | date:'dd-MM-yyyy'}}</td>
+                            <td data-ng-click="edit_checkout(checkout._id)" data-ng-hide="tablet_hide">{{ checkout.conlai = checkout.total +  checkout.extra - (checkout.reduce +  checkout.reduce_coupon) | number : 0 }}</td>
+                            <td data-ng-click="edit_checkout(checkout._id)">{{ checkout.reason }}</td>
+                            <td>
+
+                                <a  data-ng-show="session_user.role == 'admin'" ng-bootbox-confirm="Bạn Thực Sự Muốn Phục Hồi Dữ Liệu Này ?"
+                                    ng-bootbox-confirm-action="actionRestore(checkout)"
+                                        class="btn-mod-checkout tool-ob" title="Phục Hồi Hóa Đơn">
+                                    <div class="tooltip-mod">Phục Hồi Hóa Đơn </div>
+                                    <img src="img/icon/icon-add.png">
+                                </a>
+                                <a data-ng-show="session_user.role == 'admin'" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                ng-bootbox-confirm-action="del(checkout)"  class="btn-mod-checkout tool-ob" title="Xóa Hóa Đơn">
+                                <div class="tooltip-mod">Xóa Hóa Đơn </div>
+                                <img src="img/icon/icon-del.png">
+                                </a>
+
+                            </td>
+                        </tr>
+                        <tr class="tr-edit fade-in-right-big" data-ng-if="edit_checkout_id == checkout._id" >
+                            <td colspan="15">
+                                <div class="service-div" style="height: 295px">
+                                    <div id="print-div" style="display: none">
+                                        <table>
+                                            <tr style=" margin-bottom: 0px">
+                                                <th>STT</th>
+                                                <th>Sản Phẩm</th>
+                                                <th>SL</th>
+                                                <th>Đơn Giá</th>
+                                                <th>Thành Tiền</th>
+                                            </tr>
+                                            <tr class="line-tab-out">
+                                                <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+                                            </tr>
+                                            <tr ng-repeat="service in checkout.services">
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{service.name}}</td>
+                                                <td>{{service.qty}}</td>
+                                                <td>{{service.price| number:0}}</td>
+                                                <td>{{service.price *service.qty| number:0}}</td>
+                                            </tr>
+                                            <tr class="line-tab-out">
+                                                <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">Tổng Cộng</td>
+                                                <td>{{checkout.total | number : 0}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">Giảm Giá Thêm</td>
+                                                <td>{{checkout.reduce | number : 0}}</td>
+                                            </tr> <tr>
+                                            <td colspan="4" class="print-text-right">Giảm Giá Coupon</td>
+                                            <td>{{checkout.reduce_coupon | number : 0}}</td>
+                                        </tr>
+                                            <tr>
+                                                <td colspan="4" class="print-text-right">VAT</td>
+                                                <td>{{ checkout.vat?( checkout.vat_value =  (checkout.total +  checkout.extra - (checkout.reduce +  checkout.reduce_coupon))/100*10 | number : 0):"Không VAT" }}</td>
+                                            </tr>
+
+                                        </table>
+                                    </div>
+                                    <div class="ser-head" data-ng-init="tablet_default = true">
+                                        <span class="ser-head-title tablet-hide pull-left">Thông Tin Hóa Đơn</span>
+                                        <span class="ser-head-title tablet pull-left" ng-class=" tablet_default?'ser-active':''" data-ng-click="tablet_default = true ; tablet_detail= false; tablet_ret = false">Thông Tin Hóa Đơn</span>
+                                        <span class="ser-head-title tablet pull-left" ng-class=" tablet_detail?'ser-active':''" data-ng-click="tablet_detail = true ;tablet_default = false;tablet_ret = false">Chi Tiết Hóa Đơn</span>
+                                        <span class="ser-head-title tablet pull-left" ng-class=" tablet_ret?'ser-active':''"  data-ng-click="tablet_ret = true ; tablet_detail= false;tablet_default = false">Lịch Sử Trả Hàng</span>
+                                        <div class="pull-right bill-right">
+                                            <span> VAT :</span>
+                                            <span class="ser-head-store"> {{ checkout.vat?( checkout.vat_value =  (checkout.total +  checkout.extra - (checkout.reduce +  checkout.reduce_coupon))/100*10 | number : 0):"Không VAT" }} </span>
+                                        </div>
+                                        <div class="pull-right bill-right">
+                                            <span> Giảm Trừ  :</span>
+                                            <span class="ser-head-store"> {{ checkout.reduce + checkout.reduce_coupon | number : 0 }} </span>
+                                        </div>
+                                        <div class="pull-right bill-right">
+                                            <span> Phụ Thu   :</span>
+                                            <span class="ser-head-store"> {{ checkout.extra | number : 0 }} </span>
+                                        </div>
+                                        <div class="pull-right bill-right">
+                                            <span> Tổng Bill :</span>
+                                            <span class="ser-head-store"> {{ checkout.total | number : 0 }} </span>
+                                        </div>
+                                        <div class="clr"></div>
+                                    </div>
+                                    <div class="ser-info">
+                                        <div class="ser-table-tablet">
+                                            <table class="check-table" data-ng-if="tablet_default">
+                                                <tr>
+                                                    <td class="check-tab-title"> Mã Hóa Đơn</td>
+                                                    <td>{{checkout.code}}</td>
+                                                    <td class="check-tab-title">Tổng Bill</td>
+                                                    <td>{{ checkout.total | number : 0 }}</td>
+                                                </tr>
+                                                <tr>   <td class="check-tab-title">Mã Khách Hàng</td>
+                                                    <td>{{ checkout.customer.code }}</td>
+                                                    <td class="check-tab-title">Phụ Thu</td>
+                                                    <td>{{ checkout.extra | number : 0 }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="check-tab-title">Tên Khách Hàng</td>
+                                                    <td>{{ checkout.customer.name }}</td>
+                                                    <td class="check-tab-title">Giảm Giá Thêm</td>
+                                                    <td>{{ checkout.reduce | number : 0 }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="check-tab-title">Nhân Viên Phục Vụ</td>
+                                                    <td>{{ checkout.user.name }}</td>
+                                                    <td class="check-tab-title">Giảm Giá Coupon</td>
+                                                    <td>{{ checkout.reduce_coupon | number : 0 }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="check-tab-title">Nhân Viên Thanh Toán</td>
+                                                    <td>{{ checkout.user_add.name }}</td>
+                                                    <td class="check-tab-title">VAT</td>
+                                                    <td>{{ checkout.vat?( checkout.vat_value =  (checkout.total +  checkout.extra - (checkout.reduce +  checkout.reduce_coupon))/100*10 | number : 0):"Không VAT" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="check-tab-title">Ghi Chú</td>
+                                                    <td colspan="3">{{ (checkout.note)?checkout.note:'Không có ghi chú' }}</td>
+                                                </tr>
+                                            </table>
+                                            <table class="table-mod table table-hover m-b-none" data-ng-show="tablet_detail">
+                                                <thead>
+                                                <tr class="tr-head">
+                                                    <th>STT</th>
+                                                    <th>Sản Phẩm</th>
+                                                    <th class="text-center">Đơn Giá</th>
+                                                    <th class="text-center">Số Lượng</th>
+                                                    <th class="text-center">Thành Tiền</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tr ng-repeat="service in checkout.services">
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ service.name }}</td>
+
+
+                                                    <td class="text-center" data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                                                    <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                                                    <td class="text-center">{{ service.qty | number : 0 }}</td>
+
+                                                    <td class="text-center" data-ng-hide="service.nc">{{service.price *service.qty| number:0}}</td>
+                                                    <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price * service.qty | number:0}}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            <table class="table-mod table table-hover m-b-none"  data-ng-show="tablet_ret">
+                                                <thead>
+                                                <tr>
+                                                    <th>STT</th>
+                                                    <th>Mã Phiếu</th>
+                                                    <th>Ngày </th>
+                                                    <th>Tiền Hàng Trả</th>
+                                                    <th>Nhân Viên </th>
+
+                                                </tr>
+                                                </thead>
+                                                <tbody  ng-repeat="return in returns| filter:{id_check : checkout._id }">
+                                                <tr >
+                                                    <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                                                    <td><a class="a-cl" ui-sref="app.return({code : return._id})">{{ return.code}}</a></td>
+                                                    <td>{{ return.date | date:'dd-MM-yyyy'}}</td>
+                                                    <td>{{ return.total | number : 0 }}</td>
+                                                    <td>{{ return.user.name }}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="check-sub">
+                                            Giảm Trừ = Giảm Giá Thêm + Giảm Giá Coupon . Đơn Vị Tính : VNĐ .    Ngày Tạo : {{ checkout.date | date:'dd-MM-yyyy'}}
+                                        </div>
+                                        <a class="btn btn-check-edit pull-right" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                           ng-bootbox-confirm-action="del(checkout)" title="Xóa Hóa Đơn">
+                                            <img src="img/icon/c-del.png">
+                                            Xóa Hóa Đơn
+                                        </a>
+                                        <a class="btn btn-check-edit pull-right" data-ng-click="printDiv('print-div',checkout)">
+                                            <img src="img/icon/print.png" />
+                                            In Hóa Đơn
+                                        </a>
+
+
+                                    </div>
+                                </div>
+                                <div class="ser-div-right tablet-hide" style="height: 295px" data-ng-init="detail = true ; ret = false">
+                                    <div class="ser-head">
+                                        <span class="ser-head-title" ng-class=" detail?'ser-active':''" >Chi Tiết Hóa Đơn</span>
+                                        <div class="pull-right" data-ng-if="checkout.join_array.length > 0"> Các Bàn Ghép :
+            <span data-ng-repeat="room_join in checkout.join_array" style="margin-left: 10px ; padding: 2px 10px ; border: 1px solid #CCC">
+                {{room_join.name}}
+            </span>
+                                        </div>
+                                        <div class="clr">
+
+                                        </div>
+                                    </div>
+                                    <div class="table-scroll" style="height: 245px">
+                                        <table class="table-mod table table-hover m-b-none" >
+                                            <thead>
+                                            <tr class="tr-head">
+                                                <th>STT</th>
+                                                <th>Sản Phẩm</th>
+                                                <!--<th class="text-center">Thuộc Tính</th>-->
+                                                <th class="text-center">Đơn Giá</th>
+                                                <th class="text-center">Số Lượng</th>
+                                                <th class="text-center">Thành Tiền</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr ng-repeat="service in checkout.services">
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ service.name }}</td>
+                                                <!--<td class="text-center" data-ng-hide="service.nc">Mặc Định</td>-->
+                                                <!--<td class="text-center" data-ng-show="service.nc">{{service.nc.nc_name}}</td>-->
+
+                                                <td class="text-center" data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                                                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                                                <td class="text-center">{{ service.qty | number : 0 }}</td>
+
+                                                <td class="text-center" data-ng-hide="service.nc">{{service.price *service.qty| number:0}}</td>
+                                                <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price * service.qty | number:0}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-center row" style="font-size: 12px">
+                        <div class="pull-left tab-prev tablet" data-ng-show="currentPage - 1 > 0" ng-click="currentPage = currentPage-1">TRANG TRƯỚC</div>
+                        <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage - 1 > 0" >TRANG TRƯỚC</div>
+                        <div class="pull-right tab-next tablet" data-ng-show="(currentPage)*pageSize < (checkouts | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true  }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-click="currentPage = currentPage+1">TRANG SAU</div>
+                        <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage)*pageSize < (checkouts | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true  }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" >TRANG SAU</div>
+                        <pagination max-size="5"  rotate="false"    next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối" boundary-links="true"
+                                    total-items="(checkouts | filter:{_id : code_now ,code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted : true}| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length/pageSize*10" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                    </div>
+                    <table id="extable" style="display: none" class="table-mod table m-b-none">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu</th>
+                            <th>Ngày </th>
+                            <th>Tên KH</th>
+                            <th>Tổng Cộng</th>
+                            <th>Giảm Giá</th>
+                            <th>Khách Trả</th>
+                            <th>Tiền Thừa</th>
+                            <th>Nhân Viên </th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  ng-repeat="checkout in (checkouts | datefilter:start:end  | orderBy:'-date'
+                              | filter:{code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }
+                              | filter: rulefilter )" >
+                            <!--<td data-ng-init="get_total_again(checkout)">{{ (currentPage-1)*pageSize + $index + 1 }}</td>-->
+                            <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                            <td>{{ checkout.code}}</td>
+                            <td>{{ checkout.date | date:'dd-MM-yyyy'}}</td>
+                            <td>{{ checkout.customer.name }}</td>
+                            <td>{{ checkout.total }}</td>
+                            <td>{{ checkout.reduce  }}</td>
+                            <td>{{ checkout.paid  }}</td>
+                            <td>{{ checkout.paid - checkout.total + 1*checkout.reduce }}</td>
+                            <td>{{ checkout.user.name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Tổng Cộng</td>
+                            <td>
+                                {{(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true  }| filter: rulefilter| sumOfValue:'total')}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Tổng Vốn</td>
+                            <td>
+                                {{ (checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv  , deleted :true }| filter: rulefilter| sumOfValue:'total_mua')
+                                + (checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'total_chiphi' )}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Giảm Giá</td>
+                            <td>
+                                {{(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'reduce')}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lợi Nhuận</td>
+                            <td>
+                                {{(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv, deleted :true  }| filter: rulefilter| sumOfValue:'total')
+                                -(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'total_mua')
+                                -(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'total_chiphi' )
+                                -(checkouts | datefilter:start:end  | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv , deleted :true }| filter: rulefilter| sumOfValue:'reduce'  )
+                                }}
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+

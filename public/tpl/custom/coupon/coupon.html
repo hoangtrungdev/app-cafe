@@ -1,0 +1,111 @@
+<div  data-ng-controller="CouponCtrl">
+    <div class="mobile" data-ng-if="is_mobile_abc == true" data-ng-init="currentPage_mobile = 1">
+        <div class="mobile-content">
+            <div class="m-bc">
+                <div class="m-bc-title">DANH SÁCH COUPON <span class="pull-right"> Trang {{currentPage_mobile }}</span></div>
+                <table class="table-mod table m-b-none table-hover " >
+                    <thead>
+                    <tr>
+                        <th>Mã Giảm Giá</th>
+                        <th>Loại </th>
+                        <th>Giá Trị </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="coupon in (coupons | startFrom:(currentPage_mobile-1)*15 | limitTo : 15  ) ">
+                        <td>{{ coupon.code }}</td >
+                        <td>{{ coupon.type == 'percent' ? 'Phần Trăm' : 'Giá Trị'}}</td>
+                        <td>{{ coupon.type == 'percent' ? coupon.value + " %" : ( coupon.value | number : 0 )}}</td>
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="pull-left tab-prev tablet" data-ng-show="currentPage_mobile - 1 > 0" ng-click="currentPage_mobile = currentPage_mobile-1">TRANG TRƯỚC</div>
+            <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage_mobile - 1 > 0" >TRANG TRƯỚC</div>
+            <div class="pull-right tab-next tablet" data-ng-show="(currentPage_mobile)*15 < coupons.length" ng-click="currentPage_mobile = currentPage_mobile+1">TRANG TIẾP</div>
+            <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage_mobile)*15 < coupons.length" >TRANG TIẾP</div>
+
+            <div class="mobile-icon"data-ng-click="mobile_menu = !mobile_menu">
+                <img ng-src="img/icon/{{mobile_menu && 'mobile-menu-2.png' || 'mobile-menu.png'}}" >
+
+            </div>
+        </div>
+        <div data-ng-include="'tpl/blocks/mobile-menu.html'"></div>
+    </div >
+    <div class="none-mobile" data-ng-if="is_mobile_abc != true">
+
+        <div class="panel panel-default panel-min" style="padding-bottom: 20px">
+            <div class="panel-heading-mod">
+                <div class="pull-left span-heading-mod">Danh Sách Mã Giảm Giá</div>
+                <a class="pull-right btn btn-ser-add" data-ng-click="add_coupon()">
+                    <img src="img/icon/ser-add.png">
+                    Thêm Mới
+                </a>
+                <div class="clr"></div>
+            </div>
+            <table class="table-mod table table-hover m-b-none">
+                <thead>
+                <tr>
+                    <th style="width: 8%" >STT</th>
+                    <th >Mã Giảm Giá</th>
+                    <th data-sort-ignore="true">Ngày Bắt Đầu</th>
+                    <th data-sort-ignore="true">Ngày Kết Thúc</th>
+                    <th data-sort-ignore="true" style="width: 15%">Loại</th>
+                    <th data-sort-ignore="true">Giá Trị</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="coupon in coupons ">
+                    <td>{{ $index + 1 }}</td>
+                    <td>
+                        <span data-ng-if="edit_coupon_id!=coupon._id" data-ng-dblclick="edit_coupon(coupon._id)">{{ coupon.code }}</span>
+                        <input data-ng-if="edit_coupon_id==coupon._id" value="{{coupon.code}}" type="text" id="code{{coupon._id}}" class="mod-input" ng-keyup="edit_detail('code',coupon._id)" />
+                    </td>
+                    <td>
+                        <span data-ng-if="edit_coupon_id!=coupon._id" data-ng-dblclick="edit_coupon(coupon._id)">{{ coupon.start | date:'dd-MM-yyyy' }}</span>
+                        <input ng-change="edit_date('start',coupon._id,coupon.start)" id="start{{coupon._id}}" class="mod-input" data-ng-if="edit_coupon_id==coupon._id" type="text" class="form-control input-sm w-sm inline m-r"  ng-click="open_mod($event,'opened1'+coupon._id)" datepicker-popup="{{format}}" ng-model="coupon.start"  is-open="opened['opened1'+coupon._id]" datepicker-options="dateOptions" close-text="Close" />
+
+                    </td>
+                    <td>
+                        <span data-ng-if="edit_coupon_id!=coupon._id" data-ng-dblclick="edit_coupon(coupon._id)">{{ coupon.end | date:'dd-MM-yyyy' }}</span>
+                        <input ng-change="edit_date('end',coupon._id,coupon.end)" id="end{{coupon._id}}" class="mod-input" data-ng-if="edit_coupon_id==coupon._id" type="text" class="form-control input-sm w-sm inline m-r"  ng-click="open_mod($event,'opened2'+coupon._id)" datepicker-popup="{{format}}" ng-model="coupon.end" is-open="opened['opened2'+coupon._id]" datepicker-options="dateOptions" close-text="Close" />
+
+                    </td>
+                    <td>
+                        <span data-ng-if="edit_coupon_id!=coupon._id" data-ng-dblclick="edit_coupon(coupon._id)">{{ coupon.type == 'percent' ? 'Phần Trăm' : 'Giá Trị'}}</span>
+                        <select class="mod-input"  data-ng-if="edit_coupon_id==coupon._id" ng-model="coupon.type" data-ng-change="update_mod('type',coupon._id,coupon.type)">
+                            <option value="value">Giá Trị</option>
+                            <option value="percent">Phần Trăm</option>
+                        </select>
+                    </td>
+                    <td>
+                        <span data-ng-if="edit_coupon_id!=coupon._id" data-ng-dblclick="edit_coupon(coupon._id)">{{ coupon.type == 'percent' ? coupon.value + " %" : ( coupon.value | number : 0 )}}</span>
+                        <input number-mask="" data-ng-if="edit_coupon_id==coupon._id" value="{{coupon.value}}" type="text" id="value{{coupon._id}}" class="mod-input" ng-keyup="edit_detail('value',coupon._id)" />
+                    </td>
+
+                    <td>
+                               <span class="pull-right" style="min-width: 50px">
+                                    <a title="Sửa Thông Tin" data-ng-click="edit_coupon(coupon._id)" class="tool-ob" >
+                                        <img src="img/icon/icon-edit.png"  data-ng-if="edit_coupon_id!=coupon._id">
+                                        <img src="img/icon/icon-save.png" data-ng-if="edit_coupon_id==coupon._id"></i>
+                                        <div class="tooltip-mod">Sửa Thông Tin</div>
+
+                                    </a>
+                                    <a class="tool-ob"  ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?" ng-bootbox-confirm-action="del(coupon)">
+                                        <img src="img/icon/icon-trash.png">
+                                        <div class="tooltip-mod">Xóa Dữ Liệu</div>
+
+                                    </a>
+                                </span>
+                    </td>
+
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>

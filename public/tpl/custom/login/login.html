@@ -1,0 +1,62 @@
+<div id="login">
+    <div class="container" ng-controller="LoginController" ng-init="app.settings.container = false;" id="login-w" >
+        <div id="login-out" class="m-b-lg">
+            <div id="login-top"></div>
+            <div id="login-logo"><img src="img/logo-login.png" alt="logo"/></div>
+            <form name="form" data-ng-if="type_login == 'admin'" class="form-validation" data-ng-submit="login()" >
+                <div class="text-danger wrapper text-center" ng-show="authError">
+                    {{authError}}
+                </div>
+                <div class="login-div-input">
+                    <img src="img/login-user.png" />
+                    <input type="text" placeholder="Tên Đăng Nhập" class="form-control login-input" ng-model="user.username" required>
+                </div>
+                <div class="login-div-input">
+                    <img src="img/login-pass.png" />
+                    <input type="password" placeholder="Mật Khẩu" class="form-control login-input" ng-model="user.password" required>
+                </div>
+                <div class="login-forget">
+                    <a class="pull-right" ui-sref="login({type_login : 'staff'})">Đăng Nhập Nhân Viên</a>
+                </div>
+                <div  style="margin-top: 60px ;">
+                    <button ng-click="setType('quan-ly')" type="submit" class="btn btn-lg btn-block login-btn" style="float: left ; margin-right: 6%">
+                        <img src="img/icon/icon_ql.png" />
+                        Quản Lý
+                    </button>
+                    <button ng-click="setType('ban-hang')" type="submit" class="btn btn-lg btn-block login-btn" style="background: #00a8f3 !important;" >
+                        <img src="img/icon/icon_bh.png" />
+                             Bán Hàng
+                    </button>
+
+                    <div class="clr"></div>
+                </div>
+            </form>
+
+            <form name="form" data-ng-if="type_login != 'admin'" class="form-validation" data-ng-submit="login_mod()" >
+                <div class="text-danger wrapper text-center" ng-show="authError">
+                    {{authError}}
+                </div>
+                <div class="login-div-input">
+                    <img src="img/login-user.png" />
+                    <input type="text" placeholder="Tên Đăng Nhập" class="form-control login-input" ng-model="user.username" required>
+                </div>
+                <div class="login-div-input">
+                    <img src="img/login-pass.png" />
+                    <input type="password" placeholder="Mật Khẩu" class="form-control login-input" ng-model="user.password" required>
+                </div>
+                <div class="login-forget">
+                    <a class="pull-right" ui-sref="login({type_login : 'admin'})">Đăng Nhập Quản Trị</a>
+                </div>
+                <div  style="margin-top: 60px ;">
+                    <button type="submit" class="btn btn-lg btn-block login-btn" style="background: #00a8f3 !important; width: 100%" >
+                        <img src="img/icon/icon_bh.png" />
+                        Bán Hàng
+                    </button>
+
+                    <div class="clr"></div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

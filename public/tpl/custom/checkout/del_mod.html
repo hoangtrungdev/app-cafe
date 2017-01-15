@@ -1,0 +1,33 @@
+<div  data-ng-controller="CheckoutCtrl" id="service">
+    <form id="form-not-sub" name="form_service" class=" form-horizontal form-validation" data-ng-submit="actionDelMod(checkout_now)">
+        <div style="padding: 0px 20px">
+            <div class="form-group">
+                <label>Vui Lòng Nhập Lý Do Xóa Hóa Đơn </label>
+                <textarea data-ng-model="data.reason" class="form-control" placeholder="Lý Do Xóa Hóa Đơn " required></textarea>
+            </div>
+
+        </div>
+        <div class="text-right" style="margin-top: 10px">
+            <button class="btn btn-ser-save pull-right" style="background: #ed5565" data-dismiss="modal">
+                <img src="img/icon/pop-cancel.png" />
+                Hủy
+            </button>
+            <button type="submit" class="btn btn-ser-save pull-right">
+                <img src="img/icon/pop-save.png" />
+                Xác Nhận
+            </button>
+
+            <div class="clr"></div>
+        </div>
+    </form>
+</div>
+<script>
+    $('#form-not-sub').on('keyup keypress', function(e) {
+        var code = e.keyCode || e.which;
+        if (code == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+

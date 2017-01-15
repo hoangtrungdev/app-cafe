@@ -1,0 +1,116 @@
+<div  data-ng-controller="StoreDetailCtrl" id="service">
+    <form id="form-not-sub" name="form_service" class=" form-horizontal form-validation" novalidate="">
+        <div style="background: #FFF ; padding: 15px">
+            <div class="ser-add-left">
+                <div class="ser-add-div">
+                    <label class="ser-add-label" >Nhà CC</label>
+                    <div class="ser-add-input">
+                        <ui-select class="ser-select" on-select="set_scope('supplier',supplier)" ng-model="supplier">
+                            <ui-select-match placeholder="Nhà Cung Cấp">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="supplier in suppliers| filter:{type : type} | propsFilter: {name: $select.search , code: $select.search}" >
+                                <span  ng-bind-html="supplier.name | highlight: $select.search"> </span> -
+                                <span ng-bind-html="''+supplier.code | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
+
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Nhà Cung Cấp</div>
+                    </div>
+                </div>
+                <div class="ser-add-div">
+                    <label class="ser-add-label">Mã Sản Phẩm</label>
+                    <div class="ser-add-input">
+                        <input type="text" class="ser-control" placeholder="Mã Sản Phẩm" ng-model="data.code" >
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Mã Sản Phẩm</div>
+                    </div>
+                </div>
+                <div class="ser-add-div">
+                    <label class="ser-add-label">Tên Sản Phẩm</label>
+                    <div class="ser-add-input">
+                        <input type="text" class="ser-control" placeholder="Tên Sản Phẩm" ng-model="data.name" required >
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Tên Sản Phẩm</div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="ser-add-right" style="padding-left: 20px">
+                <div class="ser-add-div">
+                    <label class="ser-add-label">Giá Mua</label>
+                    <div class="ser-add-input">
+                        <input type="text" number-mask="" class="ser-control" placeholder="Giá Bán" ng-model="data.price" required min="0" >
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Giá Mua</div>
+                    </div>
+                </div>
+                <div class="ser-add-div">
+                    <label class="ser-add-label">Số Lượng</label>
+                    <div class="ser-add-input" style="width: 100px">
+                        <input type="text" number-mask="" class="ser-control" placeholder="Giá Bán" ng-model="data.qty" required min="0" >
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Số Lượng</div>
+                    </div>
+                    <label class="ser-add-label" style="width: 80px">ĐVT</label>
+                    <div class="ser-add-input" style="width: 100px">
+                        <input type="text" class="ser-control" placeholder="ĐVT" ng-model="data.dvt" required >
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Đơn Vị Tính</div>
+                    </div>
+                </div>
+                <div class="ser-add-div">
+                    <label class="ser-add-label" data-ng-init="data.price_extra = 0">Chi Phí Thêm</label>
+                    <div class="ser-add-input">
+                        <input type="text" number-mask="" class="ser-control" placeholder="Giá Bán" ng-model="data.price_extra" min="0" >
+                    </div>
+                    <div class="tool-ob ser-add-info">
+                        <img src="img/icon/ser-add-info.png">
+                        <div class="tooltip">Chi Phí Thêm</div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="clr"></div>
+
+
+        </div>
+        <div class="text-right" style="margin-top: 10px">
+            <button class="btn btn-ser-save pull-right" style="background: #ed5565" data-dismiss="modal">
+                <img src="img/icon/pop-cancel.png" />
+                Hủy
+            </button>
+            <button type="submit" data-ng-click="add_ser(store,'new')" class="btn btn-ser-save pull-right" style="background:#37bc9b">
+                <img src="img/icon/pop-save.png" />
+                Lưu & Thêm Mới
+            </button>
+            <button type="submit" data-ng-click="add_ser(store,'none')" class="btn btn-ser-save pull-right">
+                <img src="img/icon/pop-save.png" />
+                Lưu
+            </button>
+
+            <div class="clr"></div>
+        </div>
+    </form>
+</div>
+<script>
+    $('#form-not-sub').on('keyup keypress', function(e) {
+        var code = e.keyCode || e.which;
+        if (code == 13) {
+            e.preventDefault();
+            return false;
+        }
+    });
+</script>
+

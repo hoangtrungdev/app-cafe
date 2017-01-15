@@ -1,0 +1,307 @@
+<div  data-ng-controller="ReturnCtrl" >
+<toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+<div class="page-in" >
+<div class="pad-left" >
+    <div class="panel panel-default panel-min"  style="padding-bottom: 20px">
+        <div class="panel-heading-mod">
+            <div class="pull-left span-heading-mod">Phiếu Trả Hàng</div>
+            <a class="pull-right btn btn-ser-search" data-ng-click="search_show=!search_show ; list_show=''">
+                <img src="img/icon/ser-search.png">
+                <img src="img/icon/down.png">
+            </a>
+
+            <div class="clr"></div>
+        </div>
+
+        <div id="ser-search" data-ng-show="search_show">
+            <div class="ser-search-div">
+                <label class="checkout-label" > Mã Hóa Đơn </label>
+                <input class="checkout-input" ng-model="filter_code_room" type="text" placeholder="Mã Hóa Đơn"/>
+                <div class="clr"></div>
+            </div>
+            <div class="ser-search-div">
+                <label class="checkout-label" >Tên Khách Hàng</label>
+                <input class="checkout-input " ng-model="filter_kh" type="text" placeholder="Tên Khách Hàng"/>
+                <div class="clr"></div>
+            </div>
+            <div class="ser-search-div">
+                <label class="checkout-label" >Nhân Viên </label>
+                <ui-select class="checkout-input"  ng-model="user" theme="select2" on-select="set_scope('filter_nv',user.name)">
+                    <ui-select-match allow-clear="true" placeholder="Nhân Viên">{{$select.selected.name}}</ui-select-match>
+                    <ui-select-choices repeat="user in users | propsFilter: {name: $select.search}">
+                        <div ng-bind-html="user.name | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
+                <div class="clr"></div>
+            </div>
+
+            <div class="ser-search-div" style="position: relative">
+                <label class="checkout-label" >Từ Ngày </label>
+                <input type="text" placeholder="Từ Ngày" class="checkout-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="open_date.opened1" datepicker-options="dateOptions" close-text="Close" />
+                <img class="c-date" src="img/icon/date.png" />
+                <div class="clr"></div>
+            </div>
+            <div class="ser-search-div" style=" border-bottom: 1px solid #187CAB; position: relative">
+                <label class="checkout-label" >Đến Ngày </label>
+                <input type="text" placeholder="Đến Ngày" class="checkout-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="open_date.opened2" datepicker-options="dateOptions" close-text="Close" />
+                <img class="c-date" src="img/icon/date.png" />
+                <div class="clr"></div>
+
+            </div>
+            <div style="border-top: 1px solid #21A0DC; padding: 10px ; text-align: right">
+                <a class="btn ser-list-hide btn-mod-sm" data-ng-click="search_show=''">
+                    <img src="img/icon/list-hide.png"/>
+                    Ẩn Đi
+                </a>
+            </div>
+
+        </div>
+        <div>
+            <table class="table-mod table m-b-none table-hover " >
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã Phiếu</th>
+                    <th>Ngày </th>
+                    <th>Tên KH</th>
+                    <th>Tiền Hàng Trả</th>
+                    <th  data-ng-hide="tablet_hide">Giảm Giá</th>
+                    <th  data-ng-hide="tablet_hide" >Phí Trả Hàng</th>
+                    <th  data-ng-hide="tablet_hide">Tiền Trả Khách</th>
+                    <th>Nhân Viên </th>
+
+                </tr>
+                </thead>
+                <tbody  ng-repeat="return in (returns | datefilter:start:end  | orderBy:'-date'
+                              | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                              | filter: rulefilter
+                              | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )">
+                <tr ng-class="edit_return_id == return._id ?'tr-now':''"  class="color" data-ng-click="edit_return(return._id)">
+                    <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                    <td>{{ return.code}}</td>
+                    <td>{{ return.date | date:'dd-MM-yyyy'}}</td>
+                    <td>{{ return.customer.name }}</td>
+                    <td>{{ return.total | number : 0 }}</td>
+                    <td  data-ng-hide="tablet_hide">{{ return.reduce | number : 0 }}</td>
+                    <td  data-ng-hide="tablet_hide">{{ return.paid | number : 0 }}</td>
+                    <td  data-ng-hide="tablet_hide">{{ return.total - return.paid  - 1*return.reduce | number : 0 }}</td>
+                    <td>{{ return.user.name }}</td>
+                </tr>
+                <tr class="tr-edit" data-ng-if="edit_return_id == return._id">
+                    <td colspan="10">
+                        <div class="service-div">
+                            <div id="print-div" style="display: none">
+                                <table>
+                                    <tr style="margin-bottom: 0px">
+                                        <th>STT</th>
+                                        <th>Sản Phẩm</th>
+                                        <th>SL</th>
+                                        <th>Đơn Giá</th>
+                                        <th>Thành Tiền</th>
+                                    </tr>
+                                    <tr class="line-tab-out">
+                                        <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+                                    </tr>
+                                    <tr ng-repeat="service in return.services" data-ng-if="service.qty_tra">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{service.name}}</td>
+                                        <td>{{service.qty_tra}}</td>
+                                        <td>{{service.price| number:0}}</td>
+                                        <td>{{service.price *service.qty| number:0}}</td>
+                                    </tr>
+                                    <tr class="line-tab-out">
+                                        <td colspan="5" class="line-tab" >-----------------------------------------------------------------------------</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="print-text-right">Tổng Hàng Trả</td>
+                                        <td>{{return.total | number : 0}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="print-text-right">Giảm Giá</td>
+                                        <td>{{return.reduce | number : 0}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="print-text-right">Phí Trả Hàng</td>
+                                        <td>{{return.paid | number : 0}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="print-text-right">Tiền Trả Khách</td>
+                                        <td>{{ return.total - return.paid  - 1*return.reduce  | number : 0}}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="ser-head">
+                                <span class="ser-head-title">Thông Tin Hóa Đơn Trả Hàng</span>
+                                <div class="pull-right">
+                                    <span> Tiền Trả Khách:</span>
+                                    <span class="ser-head-store"> {{  return.total - return.paid  - 1*return.reduce | number : 0 }} </span>
+                                </div>
+                            </div>
+                            <div class="ser-info">
+                                <table class="check-table">
+                                    <tr>
+                                        <td class="check-tab-title"> Mã Hóa Đơn Trả</td>
+                                        <td>{{return.code}}</td>
+                                        <td class="check-tab-title">Mã Giảm Giá</td>
+                                        <td>{{return.coupon?return.coupon :"Không Sử Dụng "}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="check-tab-title">Ngày Tạo</td>
+                                        <td>{{ return.date | date:'dd-MM-yyyy'}}</td>
+                                        <td class="check-tab-title">Tiền Hàng Trả</td>
+                                        <td>{{ return.total | number : 0 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="check-tab-title">Hóa Đơn</td>
+                                        <td><a  ui-sref="app.checkout({code : return.id_check})">{{ return.code_check }}</a></td>
+                                        <td class="check-tab-title">Giảm Giá</td>
+                                        <td>{{ return.reduce | number : 0 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="check-tab-title">Tên Khách Hàng</td>
+                                        <td>{{ return.customer.name }}</td>
+                                        <td class="check-tab-title">Phí Trả Hàng</td>
+                                        <td>{{ return.paid | number : 0 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="check-tab-title">Nhân Viên</td>
+                                        <td>{{ return.user.name }}</td>
+                                        <td class="check-tab-title">Tiền Thừa</td>
+                                        <td>{{ return.total - return.paid  - 1*return.reduce | number : 0 }}</td>
+                                    </tr>
+                                </table>
+
+                                <div class="check-sub">
+                                    Đơn Vị Tính : VNĐ
+                                </div>
+                                <a class="btn btn-check-edit pull-right" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                   ng-bootbox-confirm-action="del(return)" title="Xóa Hóa Đơn">
+                                    <img src="img/icon/c-del.png">
+                                    Xóa Hóa Đơn
+                                </a>
+                                <a class="btn btn-check-edit pull-right" data-ng-click="printDiv('print-div',return)">
+                                    <img src="img/icon/print.png" />
+                                    In Hóa Đơn
+                                </a>
+
+
+                            </div>
+                        </div>
+                        <div class="ser-div-right tablet-hide">
+                            <div class="ser-head">
+                                <span class="ser-head-title">Chi Tiết Hóa Đơn Trả Hàng</span>
+                            </div>
+                            <div class="table-scroll">
+                                <table class="table-mod table table-hover m-b-none">
+                                    <thead>
+                                    <tr class="tr-head">
+                                        <th>STT</th>
+                                        <th>Sản Phẩm</th>
+                                        <th class="text-center">Thuộc Tính</th>
+                                        <th class="text-center">Đơn Giá</th>
+                                        <th class="text-center">Số Lượng</th>
+                                        <th class="text-center">Thành Tiền</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="service in return.services" data-ng-if="service.qty_tra > 0">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ service.name }}</td>
+                                        <td class="text-center" data-ng-hide="service.nc">Mặc Định</td>
+                                        <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_name}}</td>
+
+                                        <td class="text-center" data-ng-hide="service.nc">{{service.price| number:0}}</td>
+                                        <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price| number:0}} ( {{service.nc.nc_qty}} SP )</td>
+
+                                        <td class="text-center">{{ service.qty_tra | number : 0 }}</td>
+
+                                        <td class="text-center" data-ng-hide="service.nc">{{service.price *service.qty| number:0}}</td>
+                                        <td class="text-center" data-ng-show="service.nc">{{service.nc.nc_price * service.qty | number:0}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="text-center row" style="font-size: 12px">
+
+                <div class="pull-left tab-prev tablet" data-ng-show="currentPage - 1 > 0" ng-click="currentPage = currentPage-1">TRANG TRƯỚC</div>
+                <div class="pull-left tab-prev-dis tablet" data-ng-hide="currentPage - 1 > 0" >TRANG TRƯỚC</div>
+                <div class="pull-right tab-next tablet" data-ng-show="(currentPage)*pageSize < (returns | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-click="currentPage = currentPage+1">TRANG SAU</div>
+                <div class="pull-right tab-next-dis tablet" data-ng-hide="(currentPage)*pageSize < (returns | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" >TRANG SAU</div>
+
+                <pagination max-size="10"  boundary-links="true"   next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối"
+                            rotate="false"  total-items="(returns | filter:{_id : code_now , code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+            </div>
+            <table id="extable" style="display: none" class="table-mod table m-b-none">
+                <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Mã Phiếu</th>
+                    <th>Ngày </th>
+                    <th>Tên KH</th>
+                    <th>Tổng Cộng</th>
+                    <th>Giảm Giá</th>
+                    <th>Khách Trả</th>
+                    <th>Tiền Thừa</th>
+                    <th>Nhân Viên </th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr  ng-repeat="return in (returns | datefilter:start:end  | orderBy:'-date'
+                      | filter:{code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                      | filter: rulefilter )" >
+                    <!--<td data-ng-init="get_total_again(return)">{{ (currentPage-1)*pageSize + $index + 1 }}</td>-->
+                    <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                    <td>{{ return.code}}</td>
+                    <td>{{ return.date | date:'dd-MM-yyyy'}}</td>
+                    <td>{{ return.customer.name }}</td>
+                    <td>{{ return.total }}</td>
+                    <td>{{ return.reduce  }}</td>
+                    <td>{{ return.paid  }}</td>
+                    <td>{{ return.paid - return.total + 1*return.reduce }}</td>
+                    <td>{{ return.user.name }}</td>
+                </tr>
+                <tr>
+                    <td>Tổng Cộng</td>
+                    <td>
+                        {{(returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total')}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tổng Vốn</td>
+                    <td>
+                        {{ (returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total_mua')
+                        + (returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total_chiphi' )}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Giảm Giá</td>
+                    <td>
+                        {{(returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'reduce')}}
+                    </td>
+                </tr>
+                <tr>
+                    <td>Lợi Nhuận</td>
+                    <td>
+                        {{(returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total')
+                        -(returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total_mua')
+                        -(returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total_chiphi' )
+                        -(returns | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'reduce'  )
+                        }}
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</div>

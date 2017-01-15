@@ -1,0 +1,126 @@
+<div  data-ng-controller="CheckoutBillCtrl" >
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <div class=" wrapper-md page-title-out" >
+        <span class="page-title">Phiếu Chi</span>
+
+        <label class="pull-right total-title">
+            <label > TỔNG CỘNG </label>
+            {{(bills | filter:{company : filter_com ,name : filter_phong , customer : filter_kh , user : filter_nv, method : filter_method } | datefilter:start:end | sumOfValue:'total' | number : 0 )}}
+            VND
+        </label>
+    </div>
+    <div class="page-in" >
+        <div class="pad-left" >
+            <div class="panel panel-default"  style="padding-bottom: 20px">
+                <div class="panel-heading-mod">
+                    Phiếu Chi
+                </div>
+                <div class="panel-body">
+                    <label class="checkout-label" > Mã Phiếu :</label>
+                    <input class="checkout-input i2" ng-model="filter_code_room" type="text"/>
+                    <label class="checkout-label" >Nhân Viên :</label>
+                    <ui-select class="checkout-input i2"  ng-model="user" theme="bootstrap" on-select="set_scope('filter_nv',user.name)">
+                        <ui-select-match allow-clear="true" placeholder="Nhân Viên ...">{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="user in users | propsFilter: {name: $select.search}">
+                            <div ng-bind-html="user.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+
+
+
+                </div>
+                <div class="panel-body b-light">
+                    <label class="checkout-label" >Tên KH :</label>
+                    <input class="checkout-input i2" ng-model="filter_kh" type="text"/>
+                    <label class="checkout-label" >Từ Ngày :</label>
+                    <input type="text" class="checkout-input"  ng-click="open($event,'opened1')" datepicker-popup="{{format}}" ng-model="start" is-open="opened1" datepicker-options="dateOptions" close-text="Close" />
+                    <label class="checkout-label" >Đến Ngày :</label>
+                    <input type="text" class="checkout-input"  ng-click="open($event,'opened2')" datepicker-popup="{{format}}" ng-model="end" is-open="opened2" datepicker-options="dateOptions" close-text="Close" />
+                    <a class="btn btn-sm btn-info" data-ng-click="exportData()">Xuất Excel</a>
+
+                </div>
+                <div>
+                    <table class="table-mod table m-b-none table-hover table-bordered" >
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu</th>
+                            <th>Ngày </th>
+                            <th>Tên KH</th>
+                            <th>Tổng Cộng</th>
+                            <th>Đã Thanh Toán</th>
+                            <th>Còn Lại</th>
+                            <th>Nhân Viên </th>
+                            <th></th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  ng-repeat="bill in (bills | datefilter:start:end  | orderBy:'-date'
+                      | filter:{code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                      | filter: rulefilter
+                      | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  )" >
+                            <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                            <td>{{ bill.code}}</td>
+                            <td>{{ bill.date | date:'dd-MM-yyyy'}}</td>
+                            <td>{{ bill.customer.name }}</td>
+                            <td>{{ bill.total | number : 0 }}</td>
+                            <td>{{ bill.paid | number : 0 }}</td>
+                            <td>{{  bill.total - bill.paid | number : 0 }}</td>
+                            <td>{{ bill.user.name }}</td>
+                            <td style="min-width: 75px">
+                                <a data-ng-if="is_print == true && print_id == bill.code_room" data-ng-init="detail_click_mod(bill)"></a>
+                                <a data-ng-click="detail_click(bill)" class="btn-mod-checkout" title="Xem Chi Tiết">
+                                    <img src="img/icon/icon-detail.png">
+                                </a>
+                                <a data-ng-show="session_user.role == 'admin'" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                   ng-bootbox-confirm-action="del(bill)"  class="btn-mod-checkout" title="Xóa Hóa Đơn">
+                                    <img src="img/icon/icon-del.png">
+                                </a>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="text-center row" style="font-size: 12px">
+                        <pagination max-size="10"  boundary-links="true"  next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối"
+                                    rotate="false"  total-items="(bills | filter:{code : filter_code_room  , customer : filter_kh , user : filter_nv }| filter: rulefilter  | datefilter:start:end | orderBy:'-time_out' ).length" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                    </div>
+                    <table id="extable" style="display: none" class="table-mod table m-b-none">
+                        <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Mã Phiếu</th>
+                            <th>Ngày </th>
+                            <th>Tên KH</th>
+                            <th>Tổng Cộng</th>
+                            <th>Đã Thanh Toán</th>
+                            <th>Còn Lại</th>
+                            <th>Nhân Viên </th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr  ng-repeat="bill in (bills | datefilter:start:end  | orderBy:'-date'
+                      | filter:{code : filter_code_room  , customer : filter_kh , user : filter_nv }
+                      | filter: rulefilter )" >
+                            <td>{{ (currentPage-1)*pageSize + $index + 1 }}</td>
+                            <td>{{ bill.code}}</td>
+                            <td>{{ bill.date | date:'dd-MM-yyyy'}}</td>
+                            <td>{{ bill.customer.name }}</td>
+                            <td>{{ bill.total }}</td>
+                            <td>{{ bill.paid  }}</td>
+                            <td>{{  bill.total - bill.paid  }}</td>
+                            <td>{{ bill.user.name }}</td>
+
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

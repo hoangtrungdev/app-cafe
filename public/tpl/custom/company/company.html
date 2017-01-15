@@ -1,0 +1,76 @@
+<div  data-ng-controller="CompanyCtrl">
+    <!-- toaster directive -->
+    <toaster-container toaster-options="{'position-class': 'toast-bottom-right', 'close-button':true}"></toaster-container>
+    <!-- / toaster directive -->
+    <div class=" wrapper-md page-title-out" >
+        <span class="page-title">Khách Hàng</span>
+    </div>
+
+    <div class="page-in" >
+        <div class="pad-left" >
+            <div class="panel panel-default"  style="padding-bottom: 20px">
+                <div class="panel-heading-mod">
+                    Danh Sách Khách Hàng
+
+                </div>
+                <span class="add-mod-right">
+                    <a data-ng-click="add_company()">
+                        <span class="icon icon-add-blue"></span>
+                    </a>
+                </span>
+                <div class="panel-body">
+                    Tìm Kiếm : <input ng-model="filter" type="text" class="form-control input-sm w-sm inline m-r"/>
+                </div>
+                <div>
+                    <table class="table-mod table table-bordered table-hover m-b-none">
+                        <thead>
+                        <tr>
+                            <th  style="width : 7% ; white-space: nowrap">STT</th>
+                            <th>Tên Cty</th>
+                            <th>Địa Chỉ ( VAT )</th>
+                            <th>MST</th>
+                            <th>Người Tạo</th>
+                            <th  style="width: 60px"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="company in companys | filter:filter | filter: rulefilter | startFrom:(currentPage-1)*pageSize | limitTo : pageSize  ">
+                            <td>{{ $index + 1 }}</td>
+                            <td>
+                                <span data-ng-if="edit_company_id!=company._id">{{ company.company }}</span>
+                                <input data-ng-if="edit_company_id==company._id" value="{{company.company}}" type="text" id="company{{company._id}}" class="mod-input" ng-keyup="edit_detail('company',company._id)" />
+                            </td>
+                            <td>
+                                <span data-ng-if="edit_company_id!=company._id">{{ company.vat }}</span>
+                                <input data-ng-if="edit_company_id==company._id" value="{{company.vat}}" type="text" id="vat{{company._id}}" class="mod-input" ng-keyup="edit_detail('vat',company._id)" />
+                            </td>
+                            <td>
+                                <span data-ng-if="edit_company_id!=company._id">{{ company.mst }}</span>
+                                <input data-ng-if="edit_company_id==company._id" value="{{company.mst}}" type="text" id="mst{{company._id}}" class="mod-input" ng-keyup="edit_detail('mst',company._id)" />
+                            </td>
+                            <td>{{ company.create_by }}</td>
+                            <td>
+                           <span class="pull-right" style="white-space: nowrap">
+                                <a data-ng-click="edit_company(company._id)" >
+                                    <img src="img/icon/icon-edit.png" data-ng-if="edit_company_id!=company._id">
+                                    <img src="img/icon/icon-save.png" data-ng-if="edit_company_id==company._id">
+                                </a>
+                                <a><img src="img/icon/icon-del.png" data-ng-show="session_user.role == 'admin'" ng-bootbox-confirm="Bạn Thực Sự Muốn Xóa Dữ Liệu Này ?"
+                                       ng-bootbox-confirm-action="del(company)"></i>
+                                </a>
+                            </span>
+                            </td>
+
+                        </tr>
+                    </table>
+
+                    <div class="text-center row" style="font-size: 12px">
+                        <pagination max-size="10"  boundary-links="true"   next-text="Sau" previous-text="Trước" first-text="Đầu" last-text="Cuối"
+                                    rotate="false"  total-items="(companys | filter:filter | filter:rulefilter ).length*10/pageSize" ng-model="currentPage" ng-change="pageChanged(currentPage)"></pagination>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
