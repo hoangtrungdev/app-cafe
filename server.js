@@ -96,7 +96,7 @@ app.post('/read_excel', function(req, res) {
 
 
 var mongoose = require('mongoose'); 					// mongoose for mongodb
-var port  	 = process.env.PORT || 1234; 				// set the port
+var port  	 = process.env.PORT || 80; 				// set the port
 var database = require('./config/database'); 			// load the database config
 
 var morgan = require('morgan'); 		// log requests to the console (express4)
