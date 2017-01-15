@@ -76,7 +76,6 @@ angular.module('app').directive('numberMask', function() {
     }
 });
 
-
 angular.module('app').directive('slideToggle', function() {
     return {
         restrict: 'A',
